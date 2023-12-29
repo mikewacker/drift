@@ -1,3 +1,3 @@
 rootProject.name = "drift"
 
-include("drift-api")
+include("drift-api", "drift-testlib")
