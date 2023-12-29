@@ -96,7 +96,7 @@ public final class HttpOptional<V> {
     }
 
     /**
-     * Gets the status code.
+     * Gets the HTTP status code.
      *
      * @return the HTTP status code
      */
