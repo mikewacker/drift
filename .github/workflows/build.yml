@@ -1,0 +1,30 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4.0.0
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1.1.0
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2.11.1
+        with:
+          arguments: build
