@@ -4,11 +4,11 @@ plugins {
 
 dependencies {
     api(project(":drift-api"))
-    api("com.fasterxml.jackson.core:jackson-core")
+    api(libs.jackson.core)
 
-    implementation("org.assertj:assertj-core")
+    implementation(libs.assertj.core)
 
     testImplementation(project(":drift-api"))
-    testImplementation("com.fasterxml.jackson.core:jackson-annotations")
-    testImplementation("com.fasterxml.jackson.core:jackson-core")
+    testImplementation(libs.jackson.annotations)
+    testImplementation(libs.jackson.core)
 }
