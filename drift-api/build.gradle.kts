@@ -12,3 +12,12 @@ dependencies {
     testImplementation(libs.guava.testlib)
     testImplementation(libs.jackson.core)
 }
+
+publishing {
+    publications.named<MavenPublication>("mavenJava") {
+        pom {
+            name = "Drift API"
+            description = "Lightweight interfaces that define a JSON API."
+        }
+    }
+}

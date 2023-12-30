@@ -12,3 +12,13 @@ dependencies {
     testImplementation(libs.jackson.annotations)
     testImplementation(libs.jackson.core)
 }
+
+publishing {
+    publications.named<MavenPublication>("mavenJava") {
+        pom {
+            name = "Drift Test Library"
+            description = "Library that facilitates testing for a JSON API, using both unit tests and end-to-end tests."
+        }
+    }
+}
+
