@@ -2,7 +2,6 @@ package io.github.mikewacker.drift.testing.api;
 
 import io.github.mikewacker.drift.api.ScheduledExecutor;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
