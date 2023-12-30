@@ -1,3 +1,5 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+
 plugins {
     `java-library`
     id("com.diffplug.spotless")
@@ -8,18 +10,20 @@ repositories {
     mavenCentral()
 }
 
+val libs = the<LibrariesForLibs>() // version catalog workaround for convention plugins
+
 dependencies {
-    errorprone("com.google.errorprone:error_prone_core")
+    errorprone(libs.errorprone.core)
 
-    testImplementation("org.assertj:assertj-core")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.junit.jupiter.api)
 
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion = JavaLanguageVersion.of(21)
     }
     withSourcesJar()
     withJavadocJar()

@@ -3,12 +3,12 @@ plugins {
 }
 
 dependencies {
-    api("com.fasterxml.jackson.core:jackson-annotations")
-    api("com.fasterxml.jackson.core:jackson-core")
-    api("com.fasterxml.jackson.core:jackson-databind")
-    api("org.immutables:value-annotations")
+    api(libs.immutables.value.annotations)
+    api(libs.jackson.annotations)
+    api(libs.jackson.core)
+    api(libs.jackson.databind)
 
     testImplementation(project(":drift-testlib"))
-    testImplementation("com.fasterxml.jackson.core:jackson-core")
-    testImplementation("com.google.guava:guava-testlib")
+    testImplementation(libs.guava.testlib)
+    testImplementation(libs.jackson.core)
 }
