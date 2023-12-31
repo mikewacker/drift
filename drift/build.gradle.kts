@@ -5,6 +5,8 @@ plugins {
 }
 
 dependencies {
+    api(project(":drift-api"))
+    api(libs.jackson.core)
 }
 
 publishing {
