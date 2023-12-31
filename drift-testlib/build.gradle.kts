@@ -8,6 +8,7 @@ dependencies {
     api(libs.jackson.core)
     api(libs.junitJupiter.api)
     api(libs.okhttp3.mockwebserver)
+    api(libs.undertow.core)
 
     implementation(libs.assertj.core)
 
@@ -16,6 +17,7 @@ dependencies {
     testImplementation(libs.jackson.core)
     testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.okhttp3.okhttp)
+    testImplementation(libs.undertow.core)
 }
 
 publishing {
