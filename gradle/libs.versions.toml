@@ -12,6 +12,7 @@ plugin-spotless-palantir = "2.39.0"
 
 [libraries]
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+errorprone-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
 guava-testlib = { module = "com.google.guava:guava-testlib", version.ref = "guava" }
 immutables-annotations = { module = "org.immutables:value-annotations", version.ref = "immutables" }
