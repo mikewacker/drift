@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.immutables.value.annotations)
+    api(libs.immutables.annotations)
     api(libs.jackson.annotations)
     api(libs.jackson.core)
     api(libs.jackson.databind)

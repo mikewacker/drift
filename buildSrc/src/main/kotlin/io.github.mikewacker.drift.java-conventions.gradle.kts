@@ -20,9 +20,9 @@ dependencies {
     errorprone(libs.errorprone.core)
 
     testImplementation(libs.assertj.core)
-    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junitJupiter.api)
 
-    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junitJupiter.engine)
 }
 
 java {
@@ -39,7 +39,7 @@ tasks.javadoc {
 
 spotless {
     java {
-        palantirJavaFormat("2.39.0")
+        palantirJavaFormat(libs.versions.plugin.spotless.palantir.get())
     }
 }
 
