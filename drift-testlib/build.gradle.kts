@@ -4,7 +4,9 @@ plugins {
 
 dependencies {
     api(project(":drift-api"))
+    api(libs.errorprone.annotations)
     api(libs.jackson.core)
+    api(libs.junitJupiter.api)
 
     implementation(libs.assertj.core)
 
