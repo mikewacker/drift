@@ -54,7 +54,7 @@ tasks.named<Test>("test") {
 /* publishing */
 
 group = "io.github.mikewacker.drift"
-version = "0.0.2"
+version = "0.0.3-SNAPSHOT"
 
 publishing {
     publications {
