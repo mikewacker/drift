@@ -1,5 +1,7 @@
 plugins {
+    `java-library`
     id("io.github.mikewacker.drift.java-conventions")
+    id("io.github.mikewacker.drift.publish-conventions")
 }
 
 dependencies {
@@ -17,7 +19,7 @@ publishing {
     publications.named<MavenPublication>("mavenJava") {
         pom {
             name = "Drift API"
-            description = "Lightweight interfaces that define a JSON API."
+            description = "Lightweight interfaces and utilities that define a JSON API."
         }
     }
 }

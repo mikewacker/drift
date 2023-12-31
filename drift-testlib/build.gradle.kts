@@ -1,5 +1,7 @@
 plugins {
+    `java-library`
     id("io.github.mikewacker.drift.java-conventions")
+    id("io.github.mikewacker.drift.publish-conventions")
 }
 
 dependencies {
