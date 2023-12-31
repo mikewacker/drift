@@ -7,12 +7,15 @@ dependencies {
     api(libs.errorprone.annotations)
     api(libs.jackson.core)
     api(libs.junitJupiter.api)
+    api(libs.okhttp3.mockwebserver)
 
     implementation(libs.assertj.core)
 
     testImplementation(project(":drift-api"))
     testImplementation(libs.jackson.annotations)
     testImplementation(libs.jackson.core)
+    testImplementation(libs.okhttp3.mockwebserver)
+    testImplementation(libs.okhttp3.okhttp)
 }
 
 publishing {
