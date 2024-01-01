@@ -35,7 +35,7 @@ final class JsonApiClientImpl extends AbstractOkHttpJsonApiClient implements Jso
         private final ResponseAdapter<R> responseAdapter;
 
         private final AtomicBoolean wasSent = new AtomicBoolean(false);
-        
+
         @Override
         public R execute() throws IOException {
             if (wasSent.getAndSet(true)) {
