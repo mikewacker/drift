@@ -48,7 +48,7 @@ public final class JsonValuesTest {
         Object unserializableValue = new JsonValuesTest();
         assertThatThrownBy(() -> JsonValues.serialize(unserializableValue))
                 .isInstanceOf(JsonSerializationException.class)
-                .hasMessage("serialization failed");
+                .hasMessageStartingWith("serialization failed");
     }
 
     @Test
@@ -56,7 +56,7 @@ public final class JsonValuesTest {
         byte[] malformedRawValue = new byte[4];
         assertThatThrownBy(() -> JsonValues.deserialize(malformedRawValue, new TypeReference<String>() {}))
                 .isInstanceOf(JsonSerializationException.class)
-                .hasMessage("deserialization failed");
+                .hasMessageStartingWith("deserialization failed: JSON");
     }
 
     @Test
