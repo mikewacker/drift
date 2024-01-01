@@ -32,7 +32,7 @@ public final class JsonValues {
         try {
             return mapper.writeValueAsBytes(value);
         } catch (JsonProcessingException e) {
-            throw JsonSerializationException.serialize(e);
+            throw JsonSerializationException.serialize(value, e);
         }
     }
 
@@ -51,7 +51,7 @@ public final class JsonValues {
         try {
             return mapper.readValue(rawValue, valueTypeRef);
         } catch (IOException e) {
-            throw JsonSerializationException.deserialize(e);
+            throw JsonSerializationException.deserializeJson(rawValue, valueTypeRef, e);
         }
     }
 
