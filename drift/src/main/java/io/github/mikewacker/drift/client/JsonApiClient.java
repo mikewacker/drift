@@ -14,7 +14,7 @@ public interface JsonApiClient extends ApiClient {
      * @return a request builder at the initial stage
      */
     static UrlStageRequestBuilder<SendStage<Integer>> requestBuilder() {
-        return null; // TODO: Return the implementation.
+        return JsonApiClientImpl.requestBuilder();
     }
 
     /**
@@ -26,7 +26,7 @@ public interface JsonApiClient extends ApiClient {
      */
     static <V> UrlStageRequestBuilder<SendStage<HttpOptional<V>>> requestBuilder(
             TypeReference<V> responseValueTypeRef) {
-        return null; // TODO: Return the implementation
+        return JsonApiClientImpl.requestBuilder(responseValueTypeRef);
     }
 
     /**
