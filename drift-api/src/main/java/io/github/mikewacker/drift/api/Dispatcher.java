@@ -3,15 +3,16 @@ package io.github.mikewacker.drift.api;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Dispatches the request to the worker thread pool if the response cannot be sent yet. Also schedules tasks.
- * <p>
+ * Dispatcher for an API request that can hand off or dispatch this request to a worker thread.
  * Requests are handled on an IO thread, so requests that block should be dispatched to a worker thread.
+ * The dispatcher can also schedule tasks.
  * <p>
+ * The request can be {@link #dispatch}'ed to an {@code ApiHandler} that will run on a worker thread,
+ * or {@link #dispatched()} can be called if the request is manually dispatched.
  * The dispatched {@code ApiHandler} can have a different signature than the original {@code ApiHandler};
  * this may naturally occur when the request can be partially processed before it is dispatched.
  * <p>
- * The behavior is undefined if the response is not sent and the request is not dispatched via {@link #dispatch}
- * or {@link #dispatched()}.
+ * The behavior is undefined if the response is not sent and the request is not dispatched.
  */
 public interface Dispatcher {
 
