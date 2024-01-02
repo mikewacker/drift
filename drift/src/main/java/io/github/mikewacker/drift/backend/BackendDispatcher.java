@@ -22,7 +22,7 @@ public interface BackendDispatcher extends ApiClient {
      * @return a new {@code BackendDispatcher}
      */
     static BackendDispatcher create() {
-        return null; // TODO: Return the implementation.
+        return BackendDispatcherImpl.create();
     }
 
     /**
@@ -71,7 +71,7 @@ public interface BackendDispatcher extends ApiClient {
          */
         default <S extends Sender, A> void dispatch(
                 S sender, A arg, Dispatcher dispatcher, ApiHandler.TwoArg<S, A, R> callback) {
-            dispatch(sender, dispatcher, (s, responseValue, d) -> callback.handleRequest(s, arg, responseValue, d));
+            dispatch(sender, dispatcher, (s, response, d) -> callback.handleRequest(s, arg, response, d));
         }
 
         /**
@@ -88,10 +88,7 @@ public interface BackendDispatcher extends ApiClient {
          */
         default <S extends Sender, A1, A2> void dispatch(
                 S sender, A1 arg1, A2 arg2, Dispatcher dispatcher, ApiHandler.ThreeArg<S, A1, A2, R> callback) {
-            dispatch(
-                    sender,
-                    dispatcher,
-                    (s, responseValue, d) -> callback.handleRequest(s, arg1, arg2, responseValue, d));
+            dispatch(sender, dispatcher, (s, response, d) -> callback.handleRequest(s, arg1, arg2, response, d));
         }
 
         /**
@@ -115,10 +112,7 @@ public interface BackendDispatcher extends ApiClient {
                 A3 arg3,
                 Dispatcher dispatcher,
                 ApiHandler.FourArg<S, A1, A2, A3, R> callback) {
-            dispatch(
-                    sender,
-                    dispatcher,
-                    (s, responseValue, d) -> callback.handleRequest(s, arg1, arg2, arg3, responseValue, d));
+            dispatch(sender, dispatcher, (s, response, d) -> callback.handleRequest(s, arg1, arg2, arg3, response, d));
         }
     }
 }

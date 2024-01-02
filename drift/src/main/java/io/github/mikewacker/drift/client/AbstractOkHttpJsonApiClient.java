@@ -213,8 +213,8 @@ public abstract class AbstractOkHttpJsonApiClient implements ApiClient {
 
             checkContentType(rawResponse);
             byte[] rawResponseValue = rawResponse.body().bytes();
-            V value = JsonValues.deserialize(rawResponseValue, responseValueTypeRef);
-            return HttpOptional.of(value);
+            V responseValue = JsonValues.deserialize(rawResponseValue, responseValueTypeRef);
+            return HttpOptional.of(responseValue);
         }
 
         /** Checks that the {@code Content-Type} is {@code application/json}. */
