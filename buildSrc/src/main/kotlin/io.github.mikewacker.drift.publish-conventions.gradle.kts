@@ -14,7 +14,7 @@ tasks.javadoc {
 }
 
 group = "io.github.mikewacker.drift"
-version = "0.0.3-SNAPSHOT"
+version = "0.0.3"
 
 publishing {
     publications {
