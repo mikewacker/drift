@@ -1,6 +1,6 @@
 package io.github.mikewacker.drift.api;
 
-/** Asynchronous API handler. */
+/** Marker interface for an asynchronous API handler. */
 public interface ApiHandler {
 
     /**
@@ -9,7 +9,7 @@ public interface ApiHandler {
      * @param <S> the interface for the response sender
      */
     @FunctionalInterface
-    interface ZeroArg<S extends Sender> {
+    interface ZeroArg<S extends Sender> extends ApiHandler {
 
         /**
          * Handles an API request, sending the response or dispatching the request.
@@ -28,7 +28,7 @@ public interface ApiHandler {
      * @param <A> the type of the argument
      */
     @FunctionalInterface
-    interface OneArg<S extends Sender, A> {
+    interface OneArg<S extends Sender, A> extends ApiHandler {
 
         /**
          * Handles an API request, sending the response or dispatching the request.
@@ -49,7 +49,7 @@ public interface ApiHandler {
      * @param <A2> the type of the second argument
      */
     @FunctionalInterface
-    interface TwoArg<S extends Sender, A1, A2> {
+    interface TwoArg<S extends Sender, A1, A2> extends ApiHandler {
 
         /**
          * Handles an API request, sending the response or dispatching the request.
@@ -72,7 +72,7 @@ public interface ApiHandler {
      * @param <A3> the type of the third argument
      */
     @FunctionalInterface
-    interface ThreeArg<S extends Sender, A1, A2, A3> {
+    interface ThreeArg<S extends Sender, A1, A2, A3> extends ApiHandler {
 
         /**
          * Handles an API request, sending the response or dispatching the request.
@@ -97,7 +97,7 @@ public interface ApiHandler {
      * @param <A4> the type of the fourth argument
      */
     @FunctionalInterface
-    interface FourArg<S extends Sender, A1, A2, A3, A4> {
+    interface FourArg<S extends Sender, A1, A2, A3, A4> extends ApiHandler {
 
         /**
          * Handles an API request, sending the response or dispatching the request.
