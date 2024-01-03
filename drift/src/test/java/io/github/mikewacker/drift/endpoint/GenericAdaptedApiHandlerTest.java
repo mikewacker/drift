@@ -31,9 +31,8 @@ public final class GenericAdaptedApiHandlerTest {
 
     @Test
     public void handleHttpRequest_OneArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .build(Adder::add1);
+        StubHttpHandler httpHandler =
+                StubHttpHandler.builder().addArg(StubHttpExchange::maybeAddend1).build(Adder::add1);
         StubHttpExchange httpExchange = StubHttpExchange.create("1", null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(1));
@@ -77,9 +76,8 @@ public final class GenericAdaptedApiHandlerTest {
 
     @Test
     public void handleHttpRequest_ArgExtractorFails() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .build(Adder::add1);
+        StubHttpHandler httpHandler =
+                StubHttpHandler.builder().addArg(StubHttpExchange::maybeAddend1).build(Adder::add1);
         StubHttpExchange httpExchange = StubHttpExchange.create("a", null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.empty(400));
