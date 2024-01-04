@@ -8,12 +8,16 @@ dependencies {
     api(project(":drift-api"))
     api(libs.jackson.core)
     api(libs.okhttp3.okhttp)
+    api(libs.undertow.core)
+
+    implementation(libs.xnio.api)
 
     testImplementation(project(":drift-api"))
     testImplementation(project(":drift-testlib"))
     testImplementation(libs.jackson.core)
     testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.okio.jvm)
+    testImplementation(libs.undertow.core)
 }
 
 publishing {
