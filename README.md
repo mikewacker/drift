@@ -199,7 +199,7 @@ https://github.com/mikewacker/age-verification
 ## Release Notes
 
 - The API is incubating in 0.x versions of Drift.
-- Drift is based on a real-world project; the other side of that coin is that this project heavily dictates
+- Drift is based on a real-world project; the other side of that coin is that said project heavily dictates
   which features are (and are not) included in the 0.1 release.
 
 [undertow]: https://undertow.io/
