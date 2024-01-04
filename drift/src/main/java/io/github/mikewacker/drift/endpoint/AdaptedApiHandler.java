@@ -20,11 +20,11 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * The API request contains zero or more arguments.
+     * The API handler has zero or more arguments.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
-     * @param <S> the type of the response sender for the API request
+     * @param <S> the type of the response sender for the API handler
      */
     interface ZeroArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender>
             extends ArgBuilder<E, EH, ApiHandler.ZeroArg<S>> {
@@ -40,12 +40,12 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * The API request contains one or more arguments.
+     * The API handler has one or more arguments.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
-     * @param <S> the type of the response sender for the API request
-     * @param <A1> the type of the first argument for the API request
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
      */
     interface OneArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1>
             extends ArgBuilder<E, EH, ApiHandler.OneArg<S, A1>> {
@@ -61,13 +61,13 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * The API request contains two or more arguments.
+     * The API handler has two or more arguments.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
-     * @param <S> the type of the response sender for the API request
-     * @param <A1> the type of the first argument for the API request
-     * @param <A2> the type of the second argument for the API request
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
      */
     interface TwoArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2>
             extends ArgBuilder<E, EH, ApiHandler.TwoArg<S, A1, A2>> {
@@ -83,14 +83,14 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * The API request contains three or more arguments.
+     * The API handler has three or more arguments.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
-     * @param <S> the type of the response sender for the API request
-     * @param <A1> the type of the first argument for the API request
-     * @param <A2> the type of the second argument for the API request
-     * @param <A3> the type of the third argument for the API request
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
      */
     interface ThreeArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3>
             extends ArgBuilder<E, EH, ApiHandler.ThreeArg<S, A1, A2, A3>> {
@@ -106,15 +106,15 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * The API request contains four arguments.
+     * The API handler has four arguments.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
-     * @param <S> the type of the response sender for the API request
-     * @param <A1> the type of the first argument for the API request
-     * @param <A2> the type of the second argument for the API request
-     * @param <A3> the type of the third argument for the API request
-     * @param <A4> the type of the fourth argument for the API request
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
+     * @param <A4> the type of the fourth argument for the API handler
      */
     interface FourArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>
             extends Builder<E, EH, ApiHandler.FourArg<S, A1, A2, A3, A4>> {}
@@ -139,7 +139,7 @@ public interface AdaptedApiHandler<E> {
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
-     * It can add an argument to the API request.
+     * It can add an argument to the API handler.
      * <p>
      * Subtypes will override the return type.
      *
@@ -150,20 +150,20 @@ public interface AdaptedApiHandler<E> {
     interface ArgBuilder<E, EH extends AdaptedApiHandler<E>, AH extends ApiHandler> extends Builder<E, EH, AH> {
 
         /**
-         * Adds an argument to the API request, extracting that argument from the underlying HTTP request.
+         * Adds an argument to the API handler. The argument will be extracted from the underlying HTTP request.
          *
          * @param argExtractor the extractor that gets the argument from the underlying HTTP request
-         * @return a builder with an additional argument for the API request
-         * @param <A> the type of the argument for the API request
+         * @return a builder with an additional argument for the API handler
+         * @param <A> the type of the argument for the API handler
          */
         <A> Object addArg(ArgExtractor<E, A> argExtractor);
 
         /**
-         * Adds an argument to the API request, extracting that argument from the underlying HTTP request.
+         * Adds an argument to the API handler. The argument will be extracted from the underlying HTTP request.
          *
          * @param argExtractor the extractor that gets the argument from the underlying HTTP request
-         * @return a builder with an additional argument for the API request
-         * @param <A> the type of the argument for the API request
+         * @return a builder with an additional argument for the API handler
+         * @param <A> the type of the argument for the API handler
          */
         <A> Object addArg(ArgExtractor.Async<E, A> argExtractor);
     }
