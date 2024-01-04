@@ -1,11 +1,11 @@
 package io.github.mikewacker.drift.endpoint;
 
-/** Unchecked exception that tunnels a checked exception. */
+/** Unchecked exception that tunnels exceptions, including checked exceptions. */
 final class TunneledException extends RuntimeException {
 
     private final Exception cause;
 
-    /** Creates a tunneled exception from a checked exception. */
+    /** Creates a tunneled exception. */
     public static TunneledException tunnel(Exception cause) {
         return new TunneledException(cause);
     }
