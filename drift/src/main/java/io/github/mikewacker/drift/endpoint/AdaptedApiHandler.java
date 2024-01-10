@@ -30,12 +30,12 @@ public interface AdaptedApiHandler<E> {
             extends ArgBuilder<E, EH, ApiHandler.ZeroArg<S>> {
 
         @Override
-        default <A1> OneArgBuilder<E, EH, S, A1> addArg(ArgExtractor<E, A1> argExtractor) {
-            return addArg(argExtractor.async());
+        default <A1> OneArgBuilder<E, EH, S, A1> addArg(ArgExtractor<E, A1> arg1Extractor) {
+            return addArg(arg1Extractor.async());
         }
 
         @Override
-        <A1> OneArgBuilder<E, EH, S, A1> addArg(ArgExtractor.Async<E, A1> argExtractor);
+        <A1> OneArgBuilder<E, EH, S, A1> addArg(ArgExtractor.Async<E, A1> arg1Extractor);
     }
 
     /**
@@ -51,12 +51,12 @@ public interface AdaptedApiHandler<E> {
             extends ArgBuilder<E, EH, ApiHandler.OneArg<S, A1>> {
 
         @Override
-        default <A2> TwoArgBuilder<E, EH, S, A1, A2> addArg(ArgExtractor<E, A2> argExtractor) {
-            return addArg(argExtractor.async());
+        default <A2> TwoArgBuilder<E, EH, S, A1, A2> addArg(ArgExtractor<E, A2> arg2Extractor) {
+            return addArg(arg2Extractor.async());
         }
 
         @Override
-        <A2> TwoArgBuilder<E, EH, S, A1, A2> addArg(ArgExtractor.Async<E, A2> argExtractor);
+        <A2> TwoArgBuilder<E, EH, S, A1, A2> addArg(ArgExtractor.Async<E, A2> arg2Extractor);
     }
 
     /**
@@ -73,12 +73,12 @@ public interface AdaptedApiHandler<E> {
             extends ArgBuilder<E, EH, ApiHandler.TwoArg<S, A1, A2>> {
 
         @Override
-        default <A3> ThreeArgBuilder<E, EH, S, A1, A2, A3> addArg(ArgExtractor<E, A3> argExtractor) {
-            return addArg(argExtractor.async());
+        default <A3> ThreeArgBuilder<E, EH, S, A1, A2, A3> addArg(ArgExtractor<E, A3> arg3Extractor) {
+            return addArg(arg3Extractor.async());
         }
 
         @Override
-        <A3> ThreeArgBuilder<E, EH, S, A1, A2, A3> addArg(ArgExtractor.Async<E, A3> argExtractor);
+        <A3> ThreeArgBuilder<E, EH, S, A1, A2, A3> addArg(ArgExtractor.Async<E, A3> arg3Extractor);
     }
 
     /**
@@ -96,12 +96,12 @@ public interface AdaptedApiHandler<E> {
             extends ArgBuilder<E, EH, ApiHandler.ThreeArg<S, A1, A2, A3>> {
 
         @Override
-        default <A4> FourArgBuilder<E, EH, S, A1, A2, A3, A4> addArg(ArgExtractor<E, A4> argExtractor) {
-            return addArg(argExtractor.async());
+        default <A4> FourArgBuilder<E, EH, S, A1, A2, A3, A4> addArg(ArgExtractor<E, A4> arg4Extractor) {
+            return addArg(arg4Extractor.async());
         }
 
         @Override
-        <A4> FourArgBuilder<E, EH, S, A1, A2, A3, A4> addArg(ArgExtractor.Async<E, A4> argExtractor);
+        <A4> FourArgBuilder<E, EH, S, A1, A2, A3, A4> addArg(ArgExtractor.Async<E, A4> arg4Extractor);
     }
 
     /**
@@ -117,7 +117,114 @@ public interface AdaptedApiHandler<E> {
      * @param <A4> the type of the fourth argument for the API handler
      */
     interface FourArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>
-            extends Builder<E, EH, ApiHandler.FourArg<S, A1, A2, A3, A4>> {}
+            extends ArgBuilder<E, EH, ApiHandler.FourArg<S, A1, A2, A3, A4>> {
+
+        @Override
+        default <A5> FiveArgBuilder<E, EH, S, A1, A2, A3, A4, A5> addArg(ArgExtractor<E, A5> arg5Extractor) {
+            return addArg(arg5Extractor.async());
+        }
+
+        @Override
+        <A5> FiveArgBuilder<E, EH, S, A1, A2, A3, A4, A5> addArg(ArgExtractor.Async<E, A5> arg5Extractor);
+    }
+
+    /**
+     * Builder for an HTTP handler for the underlying server that invokes an API handler.
+     * The API handler has five arguments.
+     *
+     * @param <E> the type of the underlying HTTP exchange
+     * @param <EH> the type of the HTTP handler for the underlying server
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
+     * @param <A4> the type of the fourth argument for the API handler
+     * @param <A5> the type of the fifth argument for the API handler
+     */
+    interface FiveArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>
+            extends ArgBuilder<E, EH, ApiHandler.FiveArg<S, A1, A2, A3, A4, A5>> {
+
+        @Override
+        default <A6> SixArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> addArg(ArgExtractor<E, A6> arg6Extractor) {
+            return addArg(arg6Extractor.async());
+        }
+
+        @Override
+        <A6> SixArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> addArg(ArgExtractor.Async<E, A6> arg6Extractor);
+    }
+
+    /**
+     * Builder for an HTTP handler for the underlying server that invokes an API handler.
+     * The API handler has six arguments.
+     *
+     * @param <E> the type of the underlying HTTP exchange
+     * @param <EH> the type of the HTTP handler for the underlying server
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
+     * @param <A4> the type of the fourth argument for the API handler
+     * @param <A5> the type of the fifth argument for the API handler
+     * @param <A6> the type of the sixth argument for the API handler
+     */
+    interface SixArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>
+            extends ArgBuilder<E, EH, ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6>> {
+
+        @Override
+        default <A7> SevenArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> addArg(ArgExtractor<E, A7> arg7Extractor) {
+            return addArg(arg7Extractor.async());
+        }
+
+        @Override
+        <A7> SevenArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> addArg(ArgExtractor.Async<E, A7> arg7Extractor);
+    }
+
+    /**
+     * Builder for an HTTP handler for the underlying server that invokes an API handler.
+     * The API handler has seven arguments.
+     *
+     * @param <E> the type of the underlying HTTP exchange
+     * @param <EH> the type of the HTTP handler for the underlying server
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
+     * @param <A4> the type of the fourth argument for the API handler
+     * @param <A5> the type of the fifth argument for the API handler
+     * @param <A6> the type of the sixth argument for the API handler
+     * @param <A7> the type of the seventh argument for the API handler
+     */
+    interface SevenArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>
+            extends ArgBuilder<E, EH, ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7>> {
+
+        @Override
+        default <A8> EightArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> addArg(
+                ArgExtractor<E, A8> arg8Extractor) {
+            return addArg(arg8Extractor.async());
+        }
+
+        @Override
+        <A8> EightArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> addArg(ArgExtractor.Async<E, A8> arg8Extractor);
+    }
+
+    /**
+     * Builder for an HTTP handler for the underlying server that invokes an API handler.
+     * The API handler has eight arguments.
+     *
+     * @param <E> the type of the underlying HTTP exchange
+     * @param <EH> the type of the HTTP handler for the underlying server
+     * @param <S> the type of the response sender for the API handler
+     * @param <A1> the type of the first argument for the API handler
+     * @param <A2> the type of the second argument for the API handler
+     * @param <A3> the type of the third argument for the API handler
+     * @param <A4> the type of the fourth argument for the API handler
+     * @param <A5> the type of the fifth argument for the API handler
+     * @param <A6> the type of the sixth argument for the API handler
+     * @param <A7> the type of the seventh argument for the API handler
+     * @param <A8> the type of the eighth argument for the API handler
+     */
+    interface EightArgBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>
+            extends Builder<E, EH, ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8>> {}
 
     /**
      * Builder for an HTTP handler for the underlying server that invokes an API handler.
