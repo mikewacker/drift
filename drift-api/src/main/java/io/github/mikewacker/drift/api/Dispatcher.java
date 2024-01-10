@@ -105,6 +105,122 @@ public interface Dispatcher {
             S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, ApiHandler.FourArg<S, A1, A2, A3, A4> handler);
 
     /**
+     * Dispatches this request to the worker thread pool.
+     *
+     * @param sender the response sender, for when the response can be sent
+     * @param arg1 the first argument to dispatch
+     * @param arg2 the second argument to dispatch
+     * @param arg3 the third argument to dispatch
+     * @param arg4 the fourth argument to dispatch
+     * @param arg5 the fifth argument to dispatch
+     * @param handler the API handler for the dispatched request
+     * @param <S> the interface for the response sender
+     * @param <A1> the type of the first argument
+     * @param <A2> the type of the second argument
+     * @param <A3> the type of the third argument
+     * @param <A4> the type of the fourth argument
+     * @param <A5> the type of the fifth argument
+     */
+    <S extends Sender, A1, A2, A3, A4, A5> void dispatch(
+            S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, A5 arg5, ApiHandler.FiveArg<S, A1, A2, A3, A4, A5> handler);
+
+    /**
+     * Dispatches this request to the worker thread pool.
+     *
+     * @param sender the response sender, for when the response can be sent
+     * @param arg1 the first argument to dispatch
+     * @param arg2 the second argument to dispatch
+     * @param arg3 the third argument to dispatch
+     * @param arg4 the fourth argument to dispatch
+     * @param arg5 the fifth argument to dispatch
+     * @param arg6 the sixth argument to dispatch
+     * @param handler the API handler for the dispatched request
+     * @param <S> the interface for the response sender
+     * @param <A1> the type of the first argument
+     * @param <A2> the type of the second argument
+     * @param <A3> the type of the third argument
+     * @param <A4> the type of the fourth argument
+     * @param <A5> the type of the fifth argument
+     * @param <A6> the type of the sixth argument
+     */
+    <S extends Sender, A1, A2, A3, A4, A5, A6> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6> handler);
+
+    /**
+     * Dispatches this request to the worker thread pool.
+     *
+     * @param sender the response sender, for when the response can be sent
+     * @param arg1 the first argument to dispatch
+     * @param arg2 the second argument to dispatch
+     * @param arg3 the third argument to dispatch
+     * @param arg4 the fourth argument to dispatch
+     * @param arg5 the fifth argument to dispatch
+     * @param arg6 the sixth argument to dispatch
+     * @param arg7 the seventh argument to dispatch
+     * @param handler the API handler for the dispatched request
+     * @param <S> the interface for the response sender
+     * @param <A1> the type of the first argument
+     * @param <A2> the type of the second argument
+     * @param <A3> the type of the third argument
+     * @param <A4> the type of the fourth argument
+     * @param <A5> the type of the fifth argument
+     * @param <A6> the type of the sixth argument
+     * @param <A7> the type of the seventh argument
+     */
+    <S extends Sender, A1, A2, A3, A4, A5, A6, A7> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7> handler);
+
+    /**
+     * Dispatches this request to the worker thread pool.
+     *
+     * @param sender the response sender, for when the response can be sent
+     * @param arg1 the first argument to dispatch
+     * @param arg2 the second argument to dispatch
+     * @param arg3 the third argument to dispatch
+     * @param arg4 the fourth argument to dispatch
+     * @param arg5 the fifth argument to dispatch
+     * @param arg6 the sixth argument to dispatch
+     * @param arg7 the seventh argument to dispatch
+     * @param arg8 the eighth argument to dispatch
+     * @param handler the API handler for the dispatched request
+     * @param <S> the interface for the response sender
+     * @param <A1> the type of the first argument
+     * @param <A2> the type of the second argument
+     * @param <A3> the type of the third argument
+     * @param <A4> the type of the fourth argument
+     * @param <A5> the type of the fifth argument
+     * @param <A6> the type of the sixth argument
+     * @param <A7> the type of the seventh argument
+     * @param <A8> the type of the eighth argument
+     */
+    <S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            A8 arg8,
+            ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8> handler);
+
+    /**
      * Called when this request is manually dispatched without calling {@code dispatch}.
      * <p>
      * The worker thread should immediately call {@link #executeHandler(DispatchedHandler)}.

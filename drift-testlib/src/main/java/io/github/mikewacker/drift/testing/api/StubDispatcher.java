@@ -56,6 +56,46 @@ public final class StubDispatcher implements Dispatcher {
             S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, ApiHandler.FourArg<S, A1, A2, A3, A4> handler) {}
 
     @Override
+    public <S extends Sender, A1, A2, A3, A4, A5> void dispatch(
+            S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, A5 arg5, ApiHandler.FiveArg<S, A1, A2, A3, A4, A5> handler) {}
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6> handler) {}
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6, A7> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7> handler) {}
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            A8 arg8,
+            ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8> handler) {}
+
+    @Override
     public void dispatched() {}
 
     @Override

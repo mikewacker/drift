@@ -41,29 +41,78 @@ final class UndertowDispatcher implements Dispatcher {
 
     @Override
     public <S extends Sender> void dispatch(S sender, ApiHandler.ZeroArg<S> handler) {
-        httpExchange.dispatch(ex -> handler.handleRequest(sender, this));
+        httpExchange.dispatch(he -> handler.handleRequest(sender, this));
     }
 
     @Override
     public <S extends Sender, A> void dispatch(S sender, A arg, ApiHandler.OneArg<S, A> handler) {
-        httpExchange.dispatch(ex -> handler.handleRequest(sender, arg, this));
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg, this));
     }
 
     @Override
     public <S extends Sender, A1, A2> void dispatch(S sender, A1 arg1, A2 arg2, ApiHandler.TwoArg<S, A1, A2> handler) {
-        httpExchange.dispatch(ex -> handler.handleRequest(sender, arg1, arg2, this));
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, this));
     }
 
     @Override
     public <S extends Sender, A1, A2, A3> void dispatch(
             S sender, A1 arg1, A2 arg2, A3 arg3, ApiHandler.ThreeArg<S, A1, A2, A3> handler) {
-        httpExchange.dispatch(ex -> handler.handleRequest(sender, arg1, arg2, arg3, this));
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, arg3, this));
     }
 
     @Override
     public <S extends Sender, A1, A2, A3, A4> void dispatch(
             S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, ApiHandler.FourArg<S, A1, A2, A3, A4> handler) {
-        httpExchange.dispatch(ex -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, this));
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, this));
+    }
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5> void dispatch(
+            S sender, A1 arg1, A2 arg2, A3 arg3, A4 arg4, A5 arg5, ApiHandler.FiveArg<S, A1, A2, A3, A4, A5> handler) {
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, arg5, this));
+    }
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6> handler) {
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, arg5, arg6, this));
+    }
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6, A7> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7> handler) {
+        httpExchange.dispatch(he -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, arg5, arg6, arg7, this));
+    }
+
+    @Override
+    public <S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8> void dispatch(
+            S sender,
+            A1 arg1,
+            A2 arg2,
+            A3 arg3,
+            A4 arg4,
+            A5 arg5,
+            A6 arg6,
+            A7 arg7,
+            A8 arg8,
+            ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8> handler) {
+        httpExchange.dispatch(
+                he -> handler.handleRequest(sender, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, this));
     }
 
     @Override
