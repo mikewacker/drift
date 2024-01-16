@@ -6,9 +6,9 @@ import io.undertow.server.HttpServerExchange;
 import java.util.List;
 
 /** An HTTP handler for Undertow that invokes an API handler, using JSON as the wire format. */
-public final class UndertowJsonApiHandler implements HttpHandler, AdaptedApiHandler<HttpServerExchange> {
+public final class UndertowJsonApiHandler implements HttpHandler, JsonApiHandler<HttpServerExchange> {
 
-    private final AdaptedApiHandler<HttpServerExchange> delegate;
+    private final JsonApiHandler<HttpServerExchange> delegate;
 
     /**
      * Creates a builder for an HTTP handler that invokes an API handler.
@@ -38,33 +38,32 @@ public final class UndertowJsonApiHandler implements HttpHandler, AdaptedApiHand
         }
     }
 
-    private UndertowJsonApiHandler(AdaptedApiHandler<HttpServerExchange> delegate) {
+    private UndertowJsonApiHandler(JsonApiHandler<HttpServerExchange> delegate) {
         this.delegate = delegate;
     }
 
     private static final class UndertowPreArgStageBuilder
-            extends GenericAdaptedApiHandler.PreArgStageBuilder<HttpServerExchange, UndertowJsonApiHandler> {
+            extends GenericJsonApiHandler.PreArgStageBuilder<HttpServerExchange, UndertowJsonApiHandler> {
 
         @Override
-        protected GenericAdaptedApiHandler.SenderFactory<HttpServerExchange, Sender.StatusCode>
+        protected GenericJsonApiHandler.SenderFactory<HttpServerExchange, Sender.StatusCode>
                 getStatusCodeSenderFactory() {
             return UndertowSender.StatusCode::create;
         }
 
         @Override
         protected <V>
-                GenericAdaptedApiHandler.SenderFactory<HttpServerExchange, Sender.Value<V>>
-                        getJsonValueSenderFactory() {
+                GenericJsonApiHandler.SenderFactory<HttpServerExchange, Sender.Value<V>> getJsonValueSenderFactory() {
             return UndertowSender.JsonValue::create;
         }
 
         @Override
-        protected GenericAdaptedApiHandler.DispatcherFactory<HttpServerExchange> getDispatcherFactory() {
+        protected GenericJsonApiHandler.DispatcherFactory<HttpServerExchange> getDispatcherFactory() {
             return UndertowDispatcher::create;
         }
 
         @Override
-        protected GenericAdaptedApiHandler.HttpHandlerFactory<HttpServerExchange, UndertowJsonApiHandler>
+        protected GenericJsonApiHandler.HttpHandlerFactory<HttpServerExchange, UndertowJsonApiHandler>
                 getHttpHandlerFactory() {
             return UndertowJsonApiHandler::new;
         }

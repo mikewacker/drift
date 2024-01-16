@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public final class GenericAdaptedApiHandlerTest {
+public final class GenericJsonApiHandlerTest {
 
     private static FakeSender.Value<Object> sender;
 
@@ -189,9 +189,9 @@ public final class GenericAdaptedApiHandlerTest {
     }
 
     /** Stub HTTP handler. */
-    private static final class StubHttpHandler implements AdaptedApiHandler<StubHttpExchange> {
+    private static final class StubHttpHandler implements JsonApiHandler<StubHttpExchange> {
 
-        private final AdaptedApiHandler<StubHttpExchange> delegate;
+        private final JsonApiHandler<StubHttpExchange> delegate;
 
         public static RouteStageBuilder<StubHttpExchange, StubHttpHandler> builder() {
             return new StubPreArgStageBuilder();
@@ -212,33 +212,32 @@ public final class GenericAdaptedApiHandlerTest {
             delegate.handleRequest(exchange);
         }
 
-        private StubHttpHandler(AdaptedApiHandler<StubHttpExchange> delegate) {
+        private StubHttpHandler(JsonApiHandler<StubHttpExchange> delegate) {
             this.delegate = delegate;
         }
 
         private static final class StubPreArgStageBuilder
-                extends GenericAdaptedApiHandler.PreArgStageBuilder<StubHttpExchange, StubHttpHandler> {
+                extends GenericJsonApiHandler.PreArgStageBuilder<StubHttpExchange, StubHttpHandler> {
 
             @Override
-            protected GenericAdaptedApiHandler.SenderFactory<StubHttpExchange, Sender.StatusCode>
+            protected GenericJsonApiHandler.SenderFactory<StubHttpExchange, Sender.StatusCode>
                     getStatusCodeSenderFactory() {
                 return he -> FakeSender.StatusCode.create();
             }
 
             @Override
             protected <V>
-                    GenericAdaptedApiHandler.SenderFactory<StubHttpExchange, Sender.Value<V>>
-                            getJsonValueSenderFactory() {
+                    GenericJsonApiHandler.SenderFactory<StubHttpExchange, Sender.Value<V>> getJsonValueSenderFactory() {
                 return StubPreArgStageBuilder::createJsonValueSender;
             }
 
             @Override
-            protected GenericAdaptedApiHandler.DispatcherFactory<StubHttpExchange> getDispatcherFactory() {
+            protected GenericJsonApiHandler.DispatcherFactory<StubHttpExchange> getDispatcherFactory() {
                 return he -> StubDispatcher.get();
             }
 
             @Override
-            protected GenericAdaptedApiHandler.HttpHandlerFactory<StubHttpExchange, StubHttpHandler>
+            protected GenericJsonApiHandler.HttpHandlerFactory<StubHttpExchange, StubHttpHandler>
                     getHttpHandlerFactory() {
                 return StubHttpHandler::new;
             }
@@ -246,7 +245,7 @@ public final class GenericAdaptedApiHandlerTest {
             @SuppressWarnings("unchecked")
             private static <V> Sender.Value<V> createJsonValueSender(StubHttpExchange httpExchange) {
                 FakeSender.Value<V> sender = FakeSender.Value.create();
-                GenericAdaptedApiHandlerTest.sender = (FakeSender.Value<Object>) sender;
+                GenericJsonApiHandlerTest.sender = (FakeSender.Value<Object>) sender;
                 return sender;
             }
 

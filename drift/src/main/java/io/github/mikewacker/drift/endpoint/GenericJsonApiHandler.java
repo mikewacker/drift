@@ -9,18 +9,17 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Internal {@code AdaptedApiHandler} that implements the generic logic.
+ * Internal {@code JsonApiHandler} that implements the generic logic.
  * <p>
  * An implementation for a specific server will...
  * <ul>
- *     <li>provide a private constructor that accepts an {@code AdaptedApiHandler} delegate.
+ *     <li>provide a private constructor that accepts a {@code JsonApiHandler} delegate.
  *     <li>implement {@code PreArgStageBuilder}.
  *     <li>provide a static {@code builder()} method that returns a {@code RouteStageBuilder},
  *         using the {@code PreArgStageBuilder} implementation as the {@code RouteStageBuilder} implementation.
  * </ul>
  */
-final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>
-        implements AdaptedApiHandler<E> {
+final class GenericJsonApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8> implements JsonApiHandler<E> {
 
     private final HttpMethod method;
     private List<String> relativePathSegments;
@@ -113,7 +112,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         argExtractor.tryExtract(exchange, callback);
     }
 
-    private GenericAdaptedApiHandler(
+    private GenericJsonApiHandler(
             HttpMethod method,
             List<String> relativePathSegments,
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, A7, A8> apiRequestFactory,
@@ -156,10 +155,10 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         Dispatcher create(E exchange);
     }
 
-    /** Creates an HTTP handler from an {@code AdaptedApiHandler} delegate. */
-    public interface HttpHandlerFactory<E, EH extends AdaptedApiHandler<E>> {
+    /** Creates an HTTP handler from a {@code JsonApiHandler} delegate. */
+    public interface HttpHandlerFactory<E, EH extends JsonApiHandler<E>> {
 
-        EH create(AdaptedApiHandler<E> delegate);
+        EH create(JsonApiHandler<E> delegate);
     }
 
     /** Internal handler that handles the underlying HTTP request by converting it to an {@code ApiRequest}. */
@@ -191,7 +190,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Abstract {@code RouteStageBuilder} and {@code ResponseStageBuilder} implementation. */
-    public abstract static class PreArgStageBuilder<E, EH extends AdaptedApiHandler<E>>
+    public abstract static class PreArgStageBuilder<E, EH extends JsonApiHandler<E>>
             implements RouteStageBuilder<E, EH>, ResponseStageBuilder<E, EH> {
 
         private HttpMethod method = null;
@@ -232,7 +231,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         /** Gets the factory that creates a {@code Dispatcher} from the underlying HTTP exchange. */
         protected abstract DispatcherFactory<E> getDispatcherFactory();
 
-        /** Gets the factory that creates an HTTP handler from the {@code AdaptedApiHandler} delegate. */
+        /** Gets the factory that creates an HTTP handler from a {@code JsonApiHandler} delegate. */
         protected abstract HttpHandlerFactory<E, EH> getHttpHandlerFactory();
 
         protected PreArgStageBuilder() {}
@@ -245,7 +244,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code ZeroArgStageBuilder} implementation. */
-    private record ZeroArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender>(
+    private record ZeroArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender>(
             HttpMethod method,
             List<String> relativePathSegments,
             SenderFactory<E, S> senderFactory,
@@ -257,7 +256,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         public FinalStageBuilder<E, EH> apiHandler(ApiHandler.ZeroArg<S> apiHandler) {
             ApiRequest.Factory<S, Void, Void, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.zeroArg(apiHandler);
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     method,
                     relativePathSegments,
                     apiRequestFactory,
@@ -281,7 +280,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code OneArgStageBuilder} implementation. */
-    private record OneArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1>(
+    private record OneArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1>(
             ZeroArgStageBuilderImpl<E, EH, S> builder0, ArgExtractor.Async<E, A1> arg1Extractor)
             implements OneArgStageBuilder<E, EH, S, A1> {
 
@@ -289,7 +288,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         public FinalStageBuilder<E, EH> apiHandler(ApiHandler.OneArg<S, A1> apiHandler) {
             ApiRequest.Factory<S, A1, Void, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.oneArg(apiHandler);
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -313,7 +312,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code TwoArgStageBuilder} implementation. */
-    private record TwoArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2>(
+    private record TwoArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2>(
             OneArgStageBuilderImpl<E, EH, S, A1> builder1, ArgExtractor.Async<E, A2> arg2Extractor)
             implements TwoArgStageBuilder<E, EH, S, A1, A2> {
 
@@ -322,7 +321,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             ApiRequest.Factory<S, A1, A2, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.twoArg(apiHandler);
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -346,7 +345,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code ThreeArgStageBuilder} implementation. */
-    private record ThreeArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3>(
+    private record ThreeArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3>(
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2, ArgExtractor.Async<E, A3> arg3Extractor)
             implements ThreeArgStageBuilder<E, EH, S, A1, A2, A3> {
 
@@ -356,7 +355,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     ApiRequest.Factory.threeArg(apiHandler);
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -380,7 +379,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code FourArgStageBuilder} implementation. */
-    private record FourArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>(
+    private record FourArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4>(
             ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3, ArgExtractor.Async<E, A4> arg4Extractor)
             implements FourArgStageBuilder<E, EH, S, A1, A2, A3, A4> {
 
@@ -391,7 +390,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -415,7 +414,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code FiveArgStageBuilder} implementation. */
-    private record FiveArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>(
+    private record FiveArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>(
             FourArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4, ArgExtractor.Async<E, A5> arg5Extractor)
             implements FiveArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5> {
 
@@ -427,7 +426,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -451,7 +450,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code SixArgStageBuilder} implementation. */
-    private record SixArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>(
+    private record SixArgStageBuilderImpl<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>(
             FiveArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5, ArgExtractor.Async<E, A6> arg6Extractor)
             implements SixArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> {
 
@@ -464,7 +463,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -490,7 +489,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
 
     /** Internal {@code SevenArgStageBuilder} implementation. */
     private record SevenArgStageBuilderImpl<
-                    E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>(
+                    E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>(
             SixArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6> builder6, ArgExtractor.Async<E, A7> arg7Extractor)
             implements SevenArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> {
 
@@ -504,7 +503,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -530,7 +529,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
 
     /** Internal {@code EightArgStageBuilder} implementation. */
     private record EightArgStageBuilderImpl<
-                    E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>(
+                    E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>(
             SevenArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6, A7> builder7,
             ArgExtractor.Async<E, A8> arg8Extractor)
             implements EightArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> {
@@ -546,7 +545,7 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
             OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
             ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
-            AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+            JsonApiHandler<E> delegate = new GenericJsonApiHandler<>(
                     builder0.method,
                     builder0.relativePathSegments,
                     apiRequestFactory,
@@ -565,8 +564,8 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     /** Internal {@code FinalStageBuilder} implementation. */
-    private record FinalStageBuilderImpl<E, EH extends AdaptedApiHandler<E>>(
-            HttpHandlerFactory<E, EH> httpHandlerFactory, AdaptedApiHandler<E> delegate)
+    private record FinalStageBuilderImpl<E, EH extends JsonApiHandler<E>>(
+            HttpHandlerFactory<E, EH> httpHandlerFactory, JsonApiHandler<E> delegate)
             implements FinalStageBuilder<E, EH> {
 
         @Override
