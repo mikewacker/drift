@@ -7,10 +7,17 @@ import io.undertow.server.HttpHandler;
 final class GreetingHandler {
 
     public static HttpHandler create() {
-        HttpHandler greetingHandler = UndertowJsonApiHandler.builder(new TypeReference<String>() {})
-                .addArg(UndertowArgs.body(new TypeReference<String>() {}))
-                .build(Greeter::sendGreeting);
-        HttpHandler healthHandler = UndertowJsonApiHandler.builder().build(Greeter::healthCheck);
+        HttpHandler greetingHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.POST, "/greeting")
+                .jsonResponse(new TypeReference<String>() {})
+                .arg(UndertowArgs.body(new TypeReference<String>() {}))
+                .apiHandler(Greeter::sendGreeting)
+                .build();
+        HttpHandler healthHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.GET, "/health")
+                .statusCodeResponse()
+                .apiHandler(Greeter::healthCheck)
+                .build();
 
         return UndertowRouter.builder()
                 .addRoute(HttpMethod.POST, "/greeting", greetingHandler)

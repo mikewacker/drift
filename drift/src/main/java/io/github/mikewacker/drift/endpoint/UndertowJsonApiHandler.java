@@ -1,37 +1,32 @@
 package io.github.mikewacker.drift.endpoint;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import io.github.mikewacker.drift.api.HttpOptional;
 import io.github.mikewacker.drift.api.Sender;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import java.util.List;
 
-/** An HTTP handler for Undertow that invokes an API handler for a JSON API. */
+/** An HTTP handler for Undertow that invokes an API handler, using JSON as the wire format. */
 public final class UndertowJsonApiHandler implements HttpHandler, AdaptedApiHandler<HttpServerExchange> {
 
     private final AdaptedApiHandler<HttpServerExchange> delegate;
 
     /**
-     * Creates a builder for an HTTP handler that invokes an API handler that only sends an HTTP status code.
+     * Creates a builder for an HTTP handler that invokes an API handler.
      *
-     * @return a builder for an HTTP handler that invokes an API handler with zero or more arguments
+     * @return a builder at the route stage
      */
-    public static ZeroArgBuilder<HttpServerExchange, UndertowJsonApiHandler, Sender.StatusCode> builder() {
-        return GenericAdaptedApiHandler.builder(
-                UndertowSender.StatusCode::create, UndertowDispatcher::create, UndertowJsonApiHandler::new);
+    public static RouteStageBuilder<HttpServerExchange, UndertowJsonApiHandler> builder() {
+        return new UndertowPreArgStageBuilder();
     }
 
-    /**
-     * Creates a builder for an HTTP handler that invokes an API handler that sends an {@link HttpOptional} value.
-     *
-     * @param responseValueTypeRef a {@link TypeReference} for the response value
-     * @return a builder for an HTTP handler that invokes an API handler with zero or more arguments
-     * @param <V> the type of the response value
-     */
-    public static <V> ZeroArgBuilder<HttpServerExchange, UndertowJsonApiHandler, Sender.Value<V>> builder(
-            TypeReference<V> responseValueTypeRef) {
-        return GenericAdaptedApiHandler.builder(
-                UndertowSender.JsonValue::create, UndertowDispatcher::create, UndertowJsonApiHandler::new);
+    @Override
+    public HttpMethod getMethod() {
+        return delegate.getMethod();
+    }
+
+    @Override
+    public List<String> getRelativePathSegments() {
+        return delegate.getRelativePathSegments();
     }
 
     @Override
@@ -45,5 +40,35 @@ public final class UndertowJsonApiHandler implements HttpHandler, AdaptedApiHand
 
     private UndertowJsonApiHandler(AdaptedApiHandler<HttpServerExchange> delegate) {
         this.delegate = delegate;
+    }
+
+    private static final class UndertowPreArgStageBuilder
+            extends GenericAdaptedApiHandler.PreArgStageBuilder<HttpServerExchange, UndertowJsonApiHandler> {
+
+        @Override
+        protected GenericAdaptedApiHandler.SenderFactory<HttpServerExchange, Sender.StatusCode>
+                getStatusCodeSenderFactory() {
+            return UndertowSender.StatusCode::create;
+        }
+
+        @Override
+        protected <V>
+                GenericAdaptedApiHandler.SenderFactory<HttpServerExchange, Sender.Value<V>>
+                        getJsonValueSenderFactory() {
+            return UndertowSender.JsonValue::create;
+        }
+
+        @Override
+        protected GenericAdaptedApiHandler.DispatcherFactory<HttpServerExchange> getDispatcherFactory() {
+            return UndertowDispatcher::create;
+        }
+
+        @Override
+        protected GenericAdaptedApiHandler.HttpHandlerFactory<HttpServerExchange, UndertowJsonApiHandler>
+                getHttpHandlerFactory() {
+            return UndertowJsonApiHandler::new;
+        }
+
+        private UndertowPreArgStageBuilder() {}
     }
 }

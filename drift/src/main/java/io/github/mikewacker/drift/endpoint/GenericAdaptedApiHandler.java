@@ -1,17 +1,29 @@
 package io.github.mikewacker.drift.endpoint;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.mikewacker.drift.api.ApiHandler;
 import io.github.mikewacker.drift.api.Dispatcher;
 import io.github.mikewacker.drift.api.HttpOptional;
 import io.github.mikewacker.drift.api.Sender;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * Internal {@code AdaptedApiHandler} that implements the generic logic.
- * The implementation for a specific server will use this implementation as a delegate.
+ * <p>
+ * An implementation for a specific server will...
+ * <ul>
+ *     <li>provide a private constructor that accepts an {@code AdaptedApiHandler} delegate.
+ *     <li>implement {@code PreArgStageBuilder}.
+ *     <li>provide a static {@code builder()} method that returns a {@code RouteStageBuilder},
+ *         using the {@code PreArgStageBuilder} implementation as the {@code RouteStageBuilder} implementation.
+ * </ul>
  */
 final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>
         implements AdaptedApiHandler<E> {
+
+    private final HttpMethod method;
+    private List<String> relativePathSegments;
 
     private final ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, A7, A8> apiRequestFactory;
     private final SenderFactory<E, S> senderFactory;
@@ -25,12 +37,14 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     private final ArgExtractor.Async<E, A7> arg7Extractor;
     private final ArgExtractor.Async<E, A8> arg8Extractor;
 
-    /** Creates a builder for an HTTP handler for the underlying server that invokes an API handler. */
-    public static <E, EH extends AdaptedApiHandler<E>, S extends Sender> ZeroArgBuilder<E, EH, S> builder(
-            SenderFactory<E, S> senderFactory,
-            DispatcherFactory<E> dispatcherFactory,
-            HttpHandlerFactory<E, EH> httpHandlerFactory) {
-        return new ZeroArgBuilderImpl<>(senderFactory, dispatcherFactory, httpHandlerFactory);
+    @Override
+    public HttpMethod getMethod() {
+        return method;
+    }
+
+    @Override
+    public List<String> getRelativePathSegments() {
+        return relativePathSegments;
     }
 
     @Override
@@ -100,6 +114,8 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
     }
 
     private GenericAdaptedApiHandler(
+            HttpMethod method,
+            List<String> relativePathSegments,
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, A7, A8> apiRequestFactory,
             SenderFactory<E, S> senderFactory,
             DispatcherFactory<E> dispatcherFactory,
@@ -111,6 +127,8 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
             ArgExtractor.Async<E, A6> arg6Extractor,
             ArgExtractor.Async<E, A7> arg7Extractor,
             ArgExtractor.Async<E, A8> arg8Extractor) {
+        this.method = method;
+        this.relativePathSegments = relativePathSegments;
         this.apiRequestFactory = apiRequestFactory;
         this.senderFactory = senderFactory;
         this.dispatcherFactory = dispatcherFactory;
@@ -172,18 +190,76 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
         }
     }
 
-    /** Internal {@code ZeroArgBuilder} implementation. */
-    private record ZeroArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender>(
+    /** Abstract {@code RouteStageBuilder} and {@code ResponseStageBuilder} implementation. */
+    public abstract static class PreArgStageBuilder<E, EH extends AdaptedApiHandler<E>>
+            implements RouteStageBuilder<E, EH>, ResponseStageBuilder<E, EH> {
+
+        private HttpMethod method = null;
+        private List<String> relativePathSegments = null;
+
+        @Override
+        public final PreArgStageBuilder<E, EH> route(HttpMethod method, String relativePath) {
+            this.method = method;
+            relativePathSegments = splitRelativePath(relativePath);
+            return this;
+        }
+
+        @Override
+        public final ZeroArgStageBuilder<E, EH, Sender.StatusCode> statusCodeResponse() {
+            SenderFactory<E, Sender.StatusCode> senderFactory = getStatusCodeSenderFactory();
+            DispatcherFactory<E> dispatcherFactory = getDispatcherFactory();
+            HttpHandlerFactory<E, EH> httpHandlerFactory = getHttpHandlerFactory();
+            return new ZeroArgStageBuilderImpl<>(
+                    method, relativePathSegments, senderFactory, dispatcherFactory, httpHandlerFactory);
+        }
+
+        @Override
+        public final <V> ZeroArgStageBuilder<E, EH, Sender.Value<V>> jsonResponse(
+                TypeReference<V> responseValueTypeRef) {
+            SenderFactory<E, Sender.Value<V>> senderFactory = getJsonValueSenderFactory();
+            DispatcherFactory<E> dispatcherFactory = getDispatcherFactory();
+            HttpHandlerFactory<E, EH> httpHandlerFactory = getHttpHandlerFactory();
+            return new ZeroArgStageBuilderImpl<>(
+                    method, relativePathSegments, senderFactory, dispatcherFactory, httpHandlerFactory);
+        }
+
+        /** Gets the factory that creates a {@code Sender.StatusCode} from the underlying HTTP exchange. */
+        protected abstract SenderFactory<E, Sender.StatusCode> getStatusCodeSenderFactory();
+
+        /** Gets the factory that creates a {@code Sender.Value} from the underlying HTTP exchange. */
+        protected abstract <V> SenderFactory<E, Sender.Value<V>> getJsonValueSenderFactory();
+
+        /** Gets the factory that creates a {@code Dispatcher} from the underlying HTTP exchange. */
+        protected abstract DispatcherFactory<E> getDispatcherFactory();
+
+        /** Gets the factory that creates an HTTP handler from the {@code AdaptedApiHandler} delegate. */
+        protected abstract HttpHandlerFactory<E, EH> getHttpHandlerFactory();
+
+        protected PreArgStageBuilder() {}
+
+        /** Splits the relative URL path into segments. */
+        private static List<String> splitRelativePath(String relativePath) {
+            relativePath = relativePath.replaceFirst("^/", "");
+            return List.of(relativePath.split("/"));
+        }
+    }
+
+    /** Internal {@code ZeroArgStageBuilder} implementation. */
+    private record ZeroArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender>(
+            HttpMethod method,
+            List<String> relativePathSegments,
             SenderFactory<E, S> senderFactory,
             DispatcherFactory<E> dispatcherFactory,
             HttpHandlerFactory<E, EH> httpHandlerFactory)
-            implements ZeroArgBuilder<E, EH, S> {
+            implements ZeroArgStageBuilder<E, EH, S> {
 
         @Override
-        public EH build(ApiHandler.ZeroArg<S> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.ZeroArg<S> apiHandler) {
             ApiRequest.Factory<S, Void, Void, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.zeroArg(apiHandler);
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    method,
+                    relativePathSegments,
                     apiRequestFactory,
                     senderFactory,
                     dispatcherFactory,
@@ -195,25 +271,27 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A1> OneArgBuilder<E, EH, S, A1> addArg(ArgExtractor.Async<E, A1> arg1Extractor) {
-            return new OneArgBuilderImpl<>(this, arg1Extractor);
+        public <A1> OneArgStageBuilder<E, EH, S, A1> arg(ArgExtractor.Async<E, A1> arg1Extractor) {
+            return new OneArgStageBuilderImpl<>(this, arg1Extractor);
         }
     }
 
-    /** Internal {@code OneArgBuilder} implementation. */
-    private record OneArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1>(
-            ZeroArgBuilderImpl<E, EH, S> builder0, ArgExtractor.Async<E, A1> arg1Extractor)
-            implements OneArgBuilder<E, EH, S, A1> {
+    /** Internal {@code OneArgStageBuilder} implementation. */
+    private record OneArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1>(
+            ZeroArgStageBuilderImpl<E, EH, S> builder0, ArgExtractor.Async<E, A1> arg1Extractor)
+            implements OneArgStageBuilder<E, EH, S, A1> {
 
         @Override
-        public EH build(ApiHandler.OneArg<S, A1> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.OneArg<S, A1> apiHandler) {
             ApiRequest.Factory<S, A1, Void, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.oneArg(apiHandler);
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -225,26 +303,28 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A2> TwoArgBuilder<E, EH, S, A1, A2> addArg(ArgExtractor.Async<E, A2> arg2Extractor) {
-            return new TwoArgBuilderImpl<>(this, arg2Extractor);
+        public <A2> TwoArgStageBuilder<E, EH, S, A1, A2> arg(ArgExtractor.Async<E, A2> arg2Extractor) {
+            return new TwoArgStageBuilderImpl<>(this, arg2Extractor);
         }
     }
 
-    /** Internal {@code TwoArgBuilder} implementation. */
-    private record TwoArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2>(
-            OneArgBuilderImpl<E, EH, S, A1> builder1, ArgExtractor.Async<E, A2> arg2Extractor)
-            implements TwoArgBuilder<E, EH, S, A1, A2> {
+    /** Internal {@code TwoArgStageBuilder} implementation. */
+    private record TwoArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2>(
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1, ArgExtractor.Async<E, A2> arg2Extractor)
+            implements TwoArgStageBuilder<E, EH, S, A1, A2> {
 
         @Override
-        public EH build(ApiHandler.TwoArg<S, A1, A2> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.TwoArg<S, A1, A2> apiHandler) {
             ApiRequest.Factory<S, A1, A2, Void, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.twoArg(apiHandler);
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -256,27 +336,29 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A3> ThreeArgBuilder<E, EH, S, A1, A2, A3> addArg(ArgExtractor.Async<E, A3> arg3Extractor) {
-            return new ThreeArgBuilderImpl<>(this, arg3Extractor);
+        public <A3> ThreeArgStageBuilder<E, EH, S, A1, A2, A3> arg(ArgExtractor.Async<E, A3> arg3Extractor) {
+            return new ThreeArgStageBuilderImpl<>(this, arg3Extractor);
         }
     }
 
-    /** Internal {@code ThreeArgBuilder} implementation. */
-    private record ThreeArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3>(
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2, ArgExtractor.Async<E, A3> arg3Extractor)
-            implements ThreeArgBuilder<E, EH, S, A1, A2, A3> {
+    /** Internal {@code ThreeArgStageBuilder} implementation. */
+    private record ThreeArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3>(
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2, ArgExtractor.Async<E, A3> arg3Extractor)
+            implements ThreeArgStageBuilder<E, EH, S, A1, A2, A3> {
 
         @Override
-        public EH build(ApiHandler.ThreeArg<S, A1, A2, A3> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.ThreeArg<S, A1, A2, A3> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, Void, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.threeArg(apiHandler);
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -288,28 +370,30 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A4> FourArgBuilder<E, EH, S, A1, A2, A3, A4> addArg(ArgExtractor.Async<E, A4> arg4Extractor) {
-            return new FourArgBuilderImpl<>(this, arg4Extractor);
+        public <A4> FourArgStageBuilder<E, EH, S, A1, A2, A3, A4> arg(ArgExtractor.Async<E, A4> arg4Extractor) {
+            return new FourArgStageBuilderImpl<>(this, arg4Extractor);
         }
     }
 
-    /** Internal {@code FourArgBuilder} implementation. */
-    private record FourArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>(
-            ThreeArgBuilderImpl<E, EH, S, A1, A2, A3> builder3, ArgExtractor.Async<E, A4> arg4Extractor)
-            implements FourArgBuilder<E, EH, S, A1, A2, A3, A4> {
+    /** Internal {@code FourArgStageBuilder} implementation. */
+    private record FourArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>(
+            ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3, ArgExtractor.Async<E, A4> arg4Extractor)
+            implements FourArgStageBuilder<E, EH, S, A1, A2, A3, A4> {
 
         @Override
-        public EH build(ApiHandler.FourArg<S, A1, A2, A3, A4> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.FourArg<S, A1, A2, A3, A4> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, A4, Void, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.fourArg(apiHandler);
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -321,29 +405,31 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A5> FiveArgBuilder<E, EH, S, A1, A2, A3, A4, A5> addArg(ArgExtractor.Async<E, A5> arg5Extractor) {
-            return new FiveArgBuilderImpl<>(this, arg5Extractor);
+        public <A5> FiveArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5> arg(ArgExtractor.Async<E, A5> arg5Extractor) {
+            return new FiveArgStageBuilderImpl<>(this, arg5Extractor);
         }
     }
 
-    /** Internal {@code FiveArgBuilder} implementation. */
-    private record FiveArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>(
-            FourArgBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4, ArgExtractor.Async<E, A5> arg5Extractor)
-            implements FiveArgBuilder<E, EH, S, A1, A2, A3, A4, A5> {
+    /** Internal {@code FiveArgStageBuilder} implementation. */
+    private record FiveArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>(
+            FourArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4, ArgExtractor.Async<E, A5> arg5Extractor)
+            implements FiveArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5> {
 
         @Override
-        public EH build(ApiHandler.FiveArg<S, A1, A2, A3, A4, A5> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.FiveArg<S, A1, A2, A3, A4, A5> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, Void, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.fiveArg(apiHandler);
-            ThreeArgBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -355,30 +441,32 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     null,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A6> SixArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> addArg(ArgExtractor.Async<E, A6> arg6Extractor) {
-            return new SixArgBuilderImpl<>(this, arg6Extractor);
+        public <A6> SixArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> arg(ArgExtractor.Async<E, A6> arg6Extractor) {
+            return new SixArgStageBuilderImpl<>(this, arg6Extractor);
         }
     }
 
-    /** Internal {@code SixArgBuilder} implementation. */
-    private record SixArgBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>(
-            FiveArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5, ArgExtractor.Async<E, A6> arg6Extractor)
-            implements SixArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> {
+    /** Internal {@code SixArgStageBuilder} implementation. */
+    private record SixArgStageBuilderImpl<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>(
+            FiveArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5, ArgExtractor.Async<E, A6> arg6Extractor)
+            implements SixArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6> {
 
         @Override
-        public EH build(ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, Void, Void> apiRequestFactory =
                     ApiRequest.Factory.sixArg(apiHandler);
-            FourArgBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
-            ThreeArgBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            FourArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
+            ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -390,33 +478,35 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     arg6Extractor,
                     null,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A7> SevenArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> addArg(
+        public <A7> SevenArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> arg(
                 ArgExtractor.Async<E, A7> arg7Extractor) {
-            return new SevenArgBuilderImpl<>(this, arg7Extractor);
+            return new SevenArgStageBuilderImpl<>(this, arg7Extractor);
         }
     }
 
-    /** Internal {@code SevenArgBuilder} implementation. */
-    private record SevenArgBuilderImpl<
+    /** Internal {@code SevenArgStageBuilder} implementation. */
+    private record SevenArgStageBuilderImpl<
                     E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>(
-            SixArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6> builder6, ArgExtractor.Async<E, A7> arg7Extractor)
-            implements SevenArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> {
+            SixArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6> builder6, ArgExtractor.Async<E, A7> arg7Extractor)
+            implements SevenArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7> {
 
         @Override
-        public EH build(ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, A7, Void> apiRequestFactory =
                     ApiRequest.Factory.sevenArg(apiHandler);
-            FiveArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5 = builder6.builder5;
-            FourArgBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
-            ThreeArgBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            FiveArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5 = builder6.builder5;
+            FourArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
+            ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -428,34 +518,37 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     builder6.arg6Extractor,
                     arg7Extractor,
                     null);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
         }
 
         @Override
-        public <A8> EightArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> addArg(
+        public <A8> EightArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> arg(
                 ArgExtractor.Async<E, A8> arg8Extractor) {
-            return new EightArgBuilderImpl<>(this, arg8Extractor);
+            return new EightArgStageBuilderImpl<>(this, arg8Extractor);
         }
     }
 
-    /** Internal {@code EightArgBuilder} implementation. */
-    private record EightArgBuilderImpl<
+    /** Internal {@code EightArgStageBuilder} implementation. */
+    private record EightArgStageBuilderImpl<
                     E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>(
-            SevenArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6, A7> builder7, ArgExtractor.Async<E, A8> arg8Extractor)
-            implements EightArgBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> {
+            SevenArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6, A7> builder7,
+            ArgExtractor.Async<E, A8> arg8Extractor)
+            implements EightArgStageBuilder<E, EH, S, A1, A2, A3, A4, A5, A6, A7, A8> {
 
         @Override
-        public EH build(ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8> apiHandler) {
+        public FinalStageBuilder<E, EH> apiHandler(ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8> apiHandler) {
             ApiRequest.Factory<S, A1, A2, A3, A4, A5, A6, A7, A8> apiRequestFactory =
                     ApiRequest.Factory.eightArg(apiHandler);
-            SixArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6> builder6 = builder7.builder6;
-            FiveArgBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5 = builder6.builder5;
-            FourArgBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
-            ThreeArgBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
-            TwoArgBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
-            OneArgBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
-            ZeroArgBuilderImpl<E, EH, S> builder0 = builder1.builder0;
+            SixArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5, A6> builder6 = builder7.builder6;
+            FiveArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4, A5> builder5 = builder6.builder5;
+            FourArgStageBuilderImpl<E, EH, S, A1, A2, A3, A4> builder4 = builder5.builder4;
+            ThreeArgStageBuilderImpl<E, EH, S, A1, A2, A3> builder3 = builder4.builder3;
+            TwoArgStageBuilderImpl<E, EH, S, A1, A2> builder2 = builder3.builder2;
+            OneArgStageBuilderImpl<E, EH, S, A1> builder1 = builder2.builder1;
+            ZeroArgStageBuilderImpl<E, EH, S> builder0 = builder1.builder0;
             AdaptedApiHandler<E> delegate = new GenericAdaptedApiHandler<>(
+                    builder0.method,
+                    builder0.relativePathSegments,
                     apiRequestFactory,
                     builder0.senderFactory,
                     builder0.dispatcherFactory,
@@ -467,7 +560,18 @@ final class GenericAdaptedApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6
                     builder6.arg6Extractor,
                     builder7.arg7Extractor,
                     arg8Extractor);
-            return builder0.httpHandlerFactory.create(delegate);
+            return new FinalStageBuilderImpl<>(builder0.httpHandlerFactory, delegate);
+        }
+    }
+
+    /** Internal {@code FinalStageBuilder} implementation. */
+    private record FinalStageBuilderImpl<E, EH extends AdaptedApiHandler<E>>(
+            HttpHandlerFactory<E, EH> httpHandlerFactory, AdaptedApiHandler<E> delegate)
+            implements FinalStageBuilder<E, EH> {
+
+        @Override
+        public EH build() {
+            return httpHandlerFactory.create(delegate);
         }
     }
 }
