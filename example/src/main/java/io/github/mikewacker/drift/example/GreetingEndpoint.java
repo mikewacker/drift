@@ -15,10 +15,17 @@ public final class GreetingEndpoint {
     public static HttpHandler create(Supplier<String> salutationUrlProvider) {
         GreetingApi greetingApi = GreetingService.create(salutationUrlProvider);
 
-        HttpHandler greetingHandler = UndertowJsonApiHandler.builder(new TypeReference<String>() {})
-                .addArg(UndertowArgs.body(new TypeReference<String>() {}))
-                .build(greetingApi::sendGreeting);
-        HttpHandler healthHandler = UndertowJsonApiHandler.builder().build(greetingApi::healthCheck);
+        HttpHandler greetingHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.POST, "/greeting")
+                .jsonResponse(new TypeReference<String>() {})
+                .arg(UndertowArgs.body(new TypeReference<String>() {}))
+                .apiHandler(greetingApi::sendGreeting)
+                .build();
+        HttpHandler healthHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.GET, "/health")
+                .statusCodeResponse()
+                .apiHandler(greetingApi::healthCheck)
+                .build();
 
         return UndertowRouter.builder()
                 .addRoute(HttpMethod.POST, "/greeting", greetingHandler)

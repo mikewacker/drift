@@ -12,9 +12,16 @@ final class ProxyEndpoint {
     public static HttpHandler create() {
         ProxyApi proxyApi = ProxyService.create();
 
-        HttpHandler statusCodeHandler = UndertowJsonApiHandler.builder().build(proxyApi::proxyStatusCode);
-        HttpHandler textHandler =
-                UndertowJsonApiHandler.builder(new TypeReference<String>() {}).build(proxyApi::proxyText);
+        HttpHandler statusCodeHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.GET, "/status-code")
+                .statusCodeResponse()
+                .apiHandler(proxyApi::proxyStatusCode)
+                .build();
+        HttpHandler textHandler = UndertowJsonApiHandler.builder()
+                .route(HttpMethod.GET, "/text")
+                .jsonResponse(new TypeReference<String>() {})
+                .apiHandler(proxyApi::proxyText)
+                .build();
 
         return UndertowRouter.builder()
                 .addRoute(HttpMethod.GET, "/status-code", statusCodeHandler)

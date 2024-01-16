@@ -2,28 +2,31 @@ package io.github.mikewacker.drift.endpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.mikewacker.drift.api.Dispatcher;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.mikewacker.drift.api.HttpOptional;
 import io.github.mikewacker.drift.api.Sender;
 import io.github.mikewacker.drift.testing.api.FakeSender;
 import io.github.mikewacker.drift.testing.api.StubDispatcher;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public final class GenericAdaptedApiHandlerTest {
 
-    private static FakeSender.Value<Integer> sender;
-    private static Dispatcher dispatcher;
+    private static FakeSender.Value<Object> sender;
 
     @BeforeEach
-    public void createSenderAndDispatcher() {
-        sender = FakeSender.Value.create();
-        dispatcher = StubDispatcher.get();
+    public void reset() {
+        sender = null;
     }
 
     @Test
     public void handleHttpRequest_ZeroArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder().build(Adder::add0);
+        StubHttpHandler httpHandler = StubHttpHandler.builder()
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .apiHandler(Adder::add0)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create(null, null, null, null, null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(0));
@@ -31,8 +34,12 @@ public final class GenericAdaptedApiHandlerTest {
 
     @Test
     public void handleHttpRequest_OneArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler =
-                StubHttpHandler.builder().addArg(StubHttpExchange::maybeAddend1).build(Adder::add1);
+        StubHttpHandler httpHandler = StubHttpHandler.builder()
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .apiHandler(Adder::add1)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", null, null, null, null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(1));
@@ -41,9 +48,12 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_TwoArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .build(Adder::add2);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .apiHandler(Adder::add2)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", null, null, null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(3));
@@ -52,10 +62,13 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_ThreeArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .build(Adder::add3);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .apiHandler(Adder::add3)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", null, null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(6));
@@ -64,11 +77,14 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_FourArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .addArg(StubHttpExchange::maybeAddend4)
-                .build(Adder::add4);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .arg(StubHttpExchange::maybeAddend4)
+                .apiHandler(Adder::add4)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", "4", null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(10));
@@ -77,12 +93,15 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_FiveArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .addArg(StubHttpExchange::maybeAddend4)
-                .addArg(StubHttpExchange::maybeAddend5)
-                .build(Adder::add5);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .arg(StubHttpExchange::maybeAddend4)
+                .arg(StubHttpExchange::maybeAddend5)
+                .apiHandler(Adder::add5)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", "4", "5", null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(15));
@@ -91,13 +110,16 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_SixArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .addArg(StubHttpExchange::maybeAddend4)
-                .addArg(StubHttpExchange::maybeAddend5)
-                .addArg(StubHttpExchange::maybeAddend6)
-                .build(Adder::add6);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .arg(StubHttpExchange::maybeAddend4)
+                .arg(StubHttpExchange::maybeAddend5)
+                .arg(StubHttpExchange::maybeAddend6)
+                .apiHandler(Adder::add6)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", "4", "5", "6", null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(21));
@@ -106,14 +128,17 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_SevenArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .addArg(StubHttpExchange::maybeAddend4)
-                .addArg(StubHttpExchange::maybeAddend5)
-                .addArg(StubHttpExchange::maybeAddend6)
-                .addArg(StubHttpExchange::maybeAddend7)
-                .build(Adder::add7);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .arg(StubHttpExchange::maybeAddend4)
+                .arg(StubHttpExchange::maybeAddend5)
+                .arg(StubHttpExchange::maybeAddend6)
+                .arg(StubHttpExchange::maybeAddend7)
+                .apiHandler(Adder::add7)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", "4", "5", "6", "7", null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(28));
@@ -122,15 +147,18 @@ public final class GenericAdaptedApiHandlerTest {
     @Test
     public void handleHttpRequest_EightArgApiRequest() throws Exception {
         StubHttpHandler httpHandler = StubHttpHandler.builder()
-                .addArg(StubHttpExchange::maybeAddend1)
-                .addArg(StubHttpExchange::maybeAddend2)
-                .addArg(StubHttpExchange::maybeAddend3)
-                .addArg(StubHttpExchange::maybeAddend4)
-                .addArg(StubHttpExchange::maybeAddend5)
-                .addArg(StubHttpExchange::maybeAddend6)
-                .addArg(StubHttpExchange::maybeAddend7)
-                .addArg(StubHttpExchange::maybeAddend8)
-                .build(Adder::add8);
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .arg(StubHttpExchange::maybeAddend2)
+                .arg(StubHttpExchange::maybeAddend3)
+                .arg(StubHttpExchange::maybeAddend4)
+                .arg(StubHttpExchange::maybeAddend5)
+                .arg(StubHttpExchange::maybeAddend6)
+                .arg(StubHttpExchange::maybeAddend7)
+                .arg(StubHttpExchange::maybeAddend8)
+                .apiHandler(Adder::add8)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("1", "2", "3", "4", "5", "6", "7", "8");
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.of(36));
@@ -138,11 +166,26 @@ public final class GenericAdaptedApiHandlerTest {
 
     @Test
     public void handleHttpRequest_ArgExtractorFails() throws Exception {
-        StubHttpHandler httpHandler =
-                StubHttpHandler.builder().addArg(StubHttpExchange::maybeAddend1).build(Adder::add1);
+        StubHttpHandler httpHandler = StubHttpHandler.builder()
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .arg(StubHttpExchange::maybeAddend1)
+                .apiHandler(Adder::add1)
+                .build();
         StubHttpExchange httpExchange = StubHttpExchange.create("a", null, null, null, null, null, null, null);
         httpHandler.handleRequest(httpExchange);
         assertThat(sender.tryGet()).hasValue(HttpOptional.empty(400));
+    }
+
+    @Test
+    public void getRoute() {
+        StubHttpHandler httpHandler = StubHttpHandler.builder()
+                .route(HttpMethod.GET, "/some/path")
+                .jsonResponse(new TypeReference<Integer>() {})
+                .apiHandler(Adder::add0)
+                .build();
+        assertThat(httpHandler.getMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(httpHandler.getRelativePathSegments()).containsExactly("some", "path");
     }
 
     /** Stub HTTP handler. */
@@ -150,9 +193,18 @@ public final class GenericAdaptedApiHandlerTest {
 
         private final AdaptedApiHandler<StubHttpExchange> delegate;
 
-        public static ZeroArgBuilder<StubHttpExchange, StubHttpHandler, Sender.Value<Integer>> builder() {
-            return GenericAdaptedApiHandler.builder(
-                    StubHttpExchange::sender, StubHttpExchange::dispatcher, StubHttpHandler::new);
+        public static RouteStageBuilder<StubHttpExchange, StubHttpHandler> builder() {
+            return new StubPreArgStageBuilder();
+        }
+
+        @Override
+        public HttpMethod getMethod() {
+            return delegate.getMethod();
+        }
+
+        @Override
+        public List<String> getRelativePathSegments() {
+            return delegate.getRelativePathSegments();
         }
 
         @Override
@@ -163,11 +215,47 @@ public final class GenericAdaptedApiHandlerTest {
         private StubHttpHandler(AdaptedApiHandler<StubHttpExchange> delegate) {
             this.delegate = delegate;
         }
+
+        private static final class StubPreArgStageBuilder
+                extends GenericAdaptedApiHandler.PreArgStageBuilder<StubHttpExchange, StubHttpHandler> {
+
+            @Override
+            protected GenericAdaptedApiHandler.SenderFactory<StubHttpExchange, Sender.StatusCode>
+                    getStatusCodeSenderFactory() {
+                return he -> FakeSender.StatusCode.create();
+            }
+
+            @Override
+            protected <V>
+                    GenericAdaptedApiHandler.SenderFactory<StubHttpExchange, Sender.Value<V>>
+                            getJsonValueSenderFactory() {
+                return StubPreArgStageBuilder::createJsonValueSender;
+            }
+
+            @Override
+            protected GenericAdaptedApiHandler.DispatcherFactory<StubHttpExchange> getDispatcherFactory() {
+                return he -> StubDispatcher.get();
+            }
+
+            @Override
+            protected GenericAdaptedApiHandler.HttpHandlerFactory<StubHttpExchange, StubHttpHandler>
+                    getHttpHandlerFactory() {
+                return StubHttpHandler::new;
+            }
+
+            @SuppressWarnings("unchecked")
+            private static <V> Sender.Value<V> createJsonValueSender(StubHttpExchange httpExchange) {
+                FakeSender.Value<V> sender = FakeSender.Value.create();
+                GenericAdaptedApiHandlerTest.sender = (FakeSender.Value<Object>) sender;
+                return sender;
+            }
+
+            private StubPreArgStageBuilder() {}
+        }
     }
 
     /** Stub HTTP exchange. */
     private record StubHttpExchange(
-            Sender.Value<Integer> sender,
             HttpOptional<Integer> maybeAddend1,
             HttpOptional<Integer> maybeAddend2,
             HttpOptional<Integer> maybeAddend3,
@@ -175,8 +263,7 @@ public final class GenericAdaptedApiHandlerTest {
             HttpOptional<Integer> maybeAddend5,
             HttpOptional<Integer> maybeAddend6,
             HttpOptional<Integer> maybeAddend7,
-            HttpOptional<Integer> maybeAddend8,
-            Dispatcher dispatcher) {
+            HttpOptional<Integer> maybeAddend8) {
 
         public static StubHttpExchange create(
                 String arg1,
@@ -187,7 +274,6 @@ public final class GenericAdaptedApiHandlerTest {
                 String arg6,
                 String arg7,
                 String arg8) {
-            Sender.Value<Integer> sender = GenericAdaptedApiHandlerTest.sender;
             HttpOptional<Integer> maybeAddend1 = tryExtractAddend(arg1);
             HttpOptional<Integer> maybeAddend2 = tryExtractAddend(arg2);
             HttpOptional<Integer> maybeAddend3 = tryExtractAddend(arg3);
@@ -196,9 +282,7 @@ public final class GenericAdaptedApiHandlerTest {
             HttpOptional<Integer> maybeAddend6 = tryExtractAddend(arg6);
             HttpOptional<Integer> maybeAddend7 = tryExtractAddend(arg7);
             HttpOptional<Integer> maybeAddend8 = tryExtractAddend(arg8);
-            Dispatcher dispatcher = GenericAdaptedApiHandlerTest.dispatcher;
             return new StubHttpExchange(
-                    sender,
                     maybeAddend1,
                     maybeAddend2,
                     maybeAddend3,
@@ -206,8 +290,7 @@ public final class GenericAdaptedApiHandlerTest {
                     maybeAddend5,
                     maybeAddend6,
                     maybeAddend7,
-                    maybeAddend8,
-                    dispatcher);
+                    maybeAddend8);
         }
 
         private static HttpOptional<Integer> tryExtractAddend(String arg) {
