@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @param <E> the type of the underlying HTTP exchange
  */
-public interface AdaptedApiHandler<E> {
+public interface JsonApiHandler<E> {
 
     /**
      * Gets the HTTP method for this API.
@@ -41,7 +41,7 @@ public interface AdaptedApiHandler<E> {
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
      */
-    interface RouteStageBuilder<E, EH extends AdaptedApiHandler<E>> {
+    interface RouteStageBuilder<E, EH extends JsonApiHandler<E>> {
 
         /**
          * Sets the route.
@@ -59,7 +59,7 @@ public interface AdaptedApiHandler<E> {
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
      */
-    interface ResponseStageBuilder<E, EH extends AdaptedApiHandler<E>> {
+    interface ResponseStageBuilder<E, EH extends JsonApiHandler<E>> {
 
         /**
          * Sets the type of the response to only an HTTP status code.
@@ -85,7 +85,7 @@ public interface AdaptedApiHandler<E> {
      * @param <EH> the type of the HTTP handler for the underlying server
      * @param <S> the type of the response sender for the API handler
      */
-    interface ZeroArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender>
+    interface ZeroArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender>
             extends ArgStageBuilder<E, EH, ApiHandler.ZeroArg<S>> {
 
         @Override
@@ -105,7 +105,7 @@ public interface AdaptedApiHandler<E> {
      * @param <S> the type of the response sender for the API handler
      * @param <A1> the type of the first argument for the API handler
      */
-    interface OneArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1>
+    interface OneArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1>
             extends ArgStageBuilder<E, EH, ApiHandler.OneArg<S, A1>> {
 
         @Override
@@ -126,7 +126,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A1> the type of the first argument for the API handler
      * @param <A2> the type of the second argument for the API handler
      */
-    interface TwoArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2>
+    interface TwoArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2>
             extends ArgStageBuilder<E, EH, ApiHandler.TwoArg<S, A1, A2>> {
 
         @Override
@@ -148,7 +148,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A2> the type of the second argument for the API handler
      * @param <A3> the type of the third argument for the API handler
      */
-    interface ThreeArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3>
+    interface ThreeArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3>
             extends ArgStageBuilder<E, EH, ApiHandler.ThreeArg<S, A1, A2, A3>> {
 
         @Override
@@ -171,7 +171,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A3> the type of the third argument for the API handler
      * @param <A4> the type of the fourth argument for the API handler
      */
-    interface FourArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4>
+    interface FourArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4>
             extends ArgStageBuilder<E, EH, ApiHandler.FourArg<S, A1, A2, A3, A4>> {
 
         @Override
@@ -195,7 +195,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A4> the type of the fourth argument for the API handler
      * @param <A5> the type of the fifth argument for the API handler
      */
-    interface FiveArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>
+    interface FiveArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5>
             extends ArgStageBuilder<E, EH, ApiHandler.FiveArg<S, A1, A2, A3, A4, A5>> {
 
         @Override
@@ -220,7 +220,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A5> the type of the fifth argument for the API handler
      * @param <A6> the type of the sixth argument for the API handler
      */
-    interface SixArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>
+    interface SixArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6>
             extends ArgStageBuilder<E, EH, ApiHandler.SixArg<S, A1, A2, A3, A4, A5, A6>> {
 
         @Override
@@ -246,7 +246,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A6> the type of the sixth argument for the API handler
      * @param <A7> the type of the seventh argument for the API handler
      */
-    interface SevenArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>
+    interface SevenArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7>
             extends ArgStageBuilder<E, EH, ApiHandler.SevenArg<S, A1, A2, A3, A4, A5, A6, A7>> {
 
         @Override
@@ -275,7 +275,7 @@ public interface AdaptedApiHandler<E> {
      * @param <A7> the type of the seventh argument for the API handler
      * @param <A8> the type of the eighth argument for the API handler
      */
-    interface EightArgStageBuilder<E, EH extends AdaptedApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>
+    interface EightArgStageBuilder<E, EH extends JsonApiHandler<E>, S extends Sender, A1, A2, A3, A4, A5, A6, A7, A8>
             extends ApiHandlerStageBuilder<E, EH, ApiHandler.EightArg<S, A1, A2, A3, A4, A5, A6, A7, A8>> {}
 
     /**
@@ -285,7 +285,7 @@ public interface AdaptedApiHandler<E> {
      * @param <EH> the type of the HTTP handler for the underlying server
      * @param <AH> the type of the API handler
      */
-    interface ApiHandlerStageBuilder<E, EH extends AdaptedApiHandler<E>, AH extends ApiHandler> {
+    interface ApiHandlerStageBuilder<E, EH extends JsonApiHandler<E>, AH extends ApiHandler> {
 
         /**
          * Sets the API handler.
@@ -305,7 +305,7 @@ public interface AdaptedApiHandler<E> {
      * @param <EH> the type of the HTTP handler for the underlying server
      * @param <AH> the type of the API handler
      */
-    interface ArgStageBuilder<E, EH extends AdaptedApiHandler<E>, AH extends ApiHandler>
+    interface ArgStageBuilder<E, EH extends JsonApiHandler<E>, AH extends ApiHandler>
             extends ApiHandlerStageBuilder<E, EH, AH> {
 
         /**
@@ -333,7 +333,7 @@ public interface AdaptedApiHandler<E> {
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
      */
-    interface FinalStageBuilder<E, EH extends AdaptedApiHandler<E>> {
+    interface FinalStageBuilder<E, EH extends JsonApiHandler<E>> {
 
         /**
          * Builds the HTTP handler.
