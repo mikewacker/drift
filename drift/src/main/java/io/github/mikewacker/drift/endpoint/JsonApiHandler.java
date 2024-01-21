@@ -8,6 +8,9 @@ import java.util.List;
 
 /**
  * An HTTP handler for the underlying server that invokes an API handler, using JSON as the wire format.
+ * <p>
+ * An implementation for a specific server will provide a static {@code builder()} method
+ * that returns a {@code RouteStageBuilder}.
  *
  * @param <E> the type of the underlying HTTP exchange
  */

@@ -42,6 +42,7 @@ public final class UndertowJsonApiHandler implements HttpHandler, JsonApiHandler
         this.delegate = delegate;
     }
 
+    /** Internal {@code PreArgStageBuilder} implementation. */
     private static final class UndertowPreArgStageBuilder
             extends GenericJsonApiHandler.PreArgStageBuilder<HttpServerExchange, UndertowJsonApiHandler> {
 

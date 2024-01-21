@@ -7,8 +7,8 @@ import io.github.mikewacker.drift.api.Sender;
 import io.github.mikewacker.drift.testing.api.StubDispatcher;
 import java.util.List;
 
-/** Stub HTTP handler. */
-final class StubHttpHandler implements JsonApiHandler<StubHttpExchange> {
+/** Stub HTTP handler for an API handler. */
+final class StubJsonApiHandler implements JsonApiHandler<StubHttpExchange> {
 
     private static Integer statusCode = null;
     private static HttpOptional<Object> maybeValue = null;
@@ -28,7 +28,7 @@ final class StubHttpHandler implements JsonApiHandler<StubHttpExchange> {
     }
 
     /** Creates a builder. */
-    public static RouteStageBuilder<StubHttpExchange, StubHttpHandler> builder() {
+    public static RouteStageBuilder<StubHttpExchange, StubJsonApiHandler> builder() {
         return new StubPreArgStateBuilder();
     }
 
@@ -49,25 +49,25 @@ final class StubHttpHandler implements JsonApiHandler<StubHttpExchange> {
         delegate.handleRequest(httpExchange);
     }
 
-    private StubHttpHandler(JsonApiHandler<StubHttpExchange> delegate) {
+    private StubJsonApiHandler(JsonApiHandler<StubHttpExchange> delegate) {
         this.delegate = delegate;
     }
 
     /** Internal {@code PreArgStageBuilder} implementation. */
     private static final class StubPreArgStateBuilder
-            extends GenericJsonApiHandler.PreArgStageBuilder<StubHttpExchange, StubHttpHandler> {
+            extends GenericJsonApiHandler.PreArgStageBuilder<StubHttpExchange, StubJsonApiHandler> {
 
         @Override
         protected GenericJsonApiHandler.SenderFactory<StubHttpExchange, Sender.StatusCode>
                 getStatusCodeSenderFactory() {
-            return httpExchange -> (statusCode -> StubHttpHandler.statusCode = statusCode);
+            return httpExchange -> (statusCode -> StubJsonApiHandler.statusCode = statusCode);
         }
 
         @SuppressWarnings("unchecked")
         @Override
         protected <V>
                 GenericJsonApiHandler.SenderFactory<StubHttpExchange, Sender.Value<V>> getJsonValueSenderFactory() {
-            return httpExchange -> (maybeValue -> StubHttpHandler.maybeValue = (HttpOptional<Object>) maybeValue);
+            return httpExchange -> (maybeValue -> StubJsonApiHandler.maybeValue = (HttpOptional<Object>) maybeValue);
         }
 
         @Override
@@ -76,8 +76,9 @@ final class StubHttpHandler implements JsonApiHandler<StubHttpExchange> {
         }
 
         @Override
-        protected GenericJsonApiHandler.HttpHandlerFactory<StubHttpExchange, StubHttpHandler> getHttpHandlerFactory() {
-            return StubHttpHandler::new;
+        protected GenericJsonApiHandler.HttpHandlerFactory<StubHttpExchange, StubJsonApiHandler>
+                getHttpHandlerFactory() {
+            return StubJsonApiHandler::new;
         }
     }
 }
