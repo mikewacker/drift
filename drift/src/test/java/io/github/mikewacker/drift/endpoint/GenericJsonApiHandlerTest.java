@@ -10,19 +10,19 @@ public final class GenericJsonApiHandlerTest {
 
     @Test
     public void handleHttpRequest_ZeroArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add0")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .apiHandler(Adder::add0)
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add0");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(0);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(0);
     }
 
     @Test
     public void handleHttpRequest_OneArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add1")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -30,12 +30,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add1", "1");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(1);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(1);
     }
 
     @Test
     public void handleHttpRequest_TwoArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add2")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -44,12 +44,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add2", "1", "2");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(3);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(3);
     }
 
     @Test
     public void handleHttpRequest_ThreeArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add3")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -59,12 +59,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add3", "1", "2", "3");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(6);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(6);
     }
 
     @Test
     public void handleHttpRequest_FourArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add4")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -75,12 +75,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add4", "1", "2", "3", "4");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(10);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(10);
     }
 
     @Test
     public void handleHttpRequest_FiveArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add5")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -92,12 +92,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add5", "1", "2", "3", "4", "5");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(15);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(15);
     }
 
     @Test
     public void handleHttpRequest_SixArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add6")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -110,12 +110,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add6", "1", "2", "3", "4", "5", "6");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(21);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(21);
     }
 
     @Test
     public void handleHttpRequest_SevenArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add7")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -129,12 +129,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add7", "1", "2", "3", "4", "5", "6", "7");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(28);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(28);
     }
 
     @Test
     public void handleHttpRequest_EightArgApiRequest() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add8")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -149,12 +149,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add8", "1", "2", "3", "4", "5", "6", "7", "8");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).hasValue(36);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).hasValue(36);
     }
 
     @Test
     public void handleHttpRequest_ArgExtractorFails() throws Exception {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/add1")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .arg(StubArgs.intValue(0))
@@ -162,12 +162,12 @@ public final class GenericJsonApiHandlerTest {
                 .build();
         StubHttpExchange httpExchange = StubHttpExchange.of("GET", "/add1", "a");
         httpHandler.handleRequest(httpExchange);
-        assertThat(StubHttpHandler.getValueOrErrorCodeSent()).isEmptyWithErrorCode(400);
+        assertThat(StubJsonApiHandler.getValueOrErrorCodeSent()).isEmptyWithErrorCode(400);
     }
 
     @Test
     public void getRoute() {
-        StubHttpHandler httpHandler = StubHttpHandler.builder()
+        StubJsonApiHandler httpHandler = StubJsonApiHandler.builder()
                 .route(HttpMethod.GET, "/some/path")
                 .jsonResponse(new TypeReference<Integer>() {})
                 .apiHandler(Adder::add0)

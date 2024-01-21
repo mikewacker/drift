@@ -14,10 +14,10 @@ public interface ArgExtractor<E, A> {
     /**
      * Synchronously extracts an argument for the API request from the underlying HTTP request.
      *
-     * @param exchange the underlying HTTP exchange
+     * @param httpExchange the underlying HTTP exchange
      * @return an argument for the API request, or an error status code
      */
-    HttpOptional<A> tryExtract(E exchange);
+    HttpOptional<A> tryExtract(E httpExchange);
 
     /**
      * Adapts this extractor to the asynchronous interface.
