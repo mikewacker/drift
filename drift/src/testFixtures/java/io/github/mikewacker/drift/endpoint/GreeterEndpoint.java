@@ -3,9 +3,10 @@ package io.github.mikewacker.drift.endpoint;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.undertow.server.HttpHandler;
 
-/** Test {@code HttpHandler} for {@code Greeter}. */
-final class GreetingHandler {
+/** Endpoint for {@code Greeter}. */
+public final class GreeterEndpoint {
 
+    /** Creates an HTTP handler for the {@code Greeter}. */
     public static HttpHandler create() {
         HttpHandler greetingHandler = UndertowJsonApiHandler.builder()
                 .route(HttpMethod.POST, "/greeting")
@@ -26,5 +27,5 @@ final class GreetingHandler {
     }
 
     // static class
-    private GreetingHandler() {}
+    private GreeterEndpoint() {}
 }

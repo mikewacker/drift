@@ -5,11 +5,13 @@ plugins {
 }
 
 dependencies {
+    // main
     api(libs.immutables.annotations)
     api(libs.jackson.annotations)
     api(libs.jackson.core)
     api(libs.jackson.databind)
 
+    // test
     testImplementation(project(":drift-testlib"))
     testImplementation(libs.guava.testlib)
     testImplementation(libs.jackson.core)

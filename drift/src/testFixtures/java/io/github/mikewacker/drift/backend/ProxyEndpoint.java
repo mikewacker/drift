@@ -9,6 +9,7 @@ import io.undertow.server.HttpHandler;
 /** Endpoint for {@code ProxyApi}. */
 final class ProxyEndpoint {
 
+    /** Creates an HTTP handler for {@code ProxyApi}. */
     public static HttpHandler create() {
         ProxyApi proxyApi = ProxyService.create();
 
