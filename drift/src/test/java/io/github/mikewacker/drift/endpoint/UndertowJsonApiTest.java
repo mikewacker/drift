@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public final class UndertowJsonApiTest {
 
     @RegisterExtension
-    private static final TestServer<?> server = TestUndertowServer.register("test", GreetingHandler::create);
+    private static final TestServer<?> server = TestUndertowServer.register("test", GreeterEndpoint::create);
 
     @Test
     public void exchange_StatusCode() throws IOException {

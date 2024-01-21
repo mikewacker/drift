@@ -1,10 +1,12 @@
 plugins {
     `java-library`
+    `java-test-fixtures`
     id("io.github.mikewacker.drift.java-conventions")
     id("io.github.mikewacker.drift.publish-conventions")
 }
 
 dependencies {
+    // main
     api(project(":drift-api"))
     api(libs.errorprone.annotations)
     api(libs.jackson.core)
@@ -14,6 +16,10 @@ dependencies {
 
     implementation(libs.assertj.core)
 
+    // test fixtures
+    testFixturesApi(libs.okhttp3.okhttp)
+
+    // test
     testImplementation(project(":drift-api"))
     testImplementation(libs.jackson.annotations)
     testImplementation(libs.jackson.core)

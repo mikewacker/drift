@@ -11,6 +11,7 @@ final class ProxyService implements ProxyApi {
 
     private final BackendDispatcher backendDispatcher = BackendDispatcher.create();
 
+    /** Creates a service for {@code ProxyApi}. */
     public static ProxyApi create() {
         return new ProxyService();
     }
@@ -33,10 +34,12 @@ final class ProxyService implements ProxyApi {
                 .dispatch(sender, dispatcher, this::onTextReceived);
     }
 
+    /** Sends the status code that was received from the backend server. */
     private void onStatusCodeReceived(Sender.StatusCode sender, int statusCode, Dispatcher dispatcher) {
         sender.send(statusCode);
     }
 
+    /** Sends the text or error status code that was received from the backend server. */
     private void onTextReceived(Sender.Value<String> sender, HttpOptional<String> maybeText, Dispatcher dispatcher) {
         sender.send(maybeText);
     }
