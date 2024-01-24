@@ -5,7 +5,7 @@ import io.github.mikewacker.drift.api.ApiHandler;
 import io.github.mikewacker.drift.api.Dispatcher;
 import io.github.mikewacker.drift.api.HttpOptional;
 import io.github.mikewacker.drift.api.Sender;
-import io.github.mikewacker.drift.client.ApiClient;
+import io.github.mikewacker.drift.client.BaseJsonApiClient;
 
 /**
  * A dispatcher for a frontend request that can asynchronously send backend requests to a backend server.
@@ -14,7 +14,7 @@ import io.github.mikewacker.drift.client.ApiClient;
  * <p>
  * The frontend server should create and share a single {@code BackendDispatcher}; each instance creates a new client.
  */
-public interface BackendDispatcher extends ApiClient {
+public interface BackendDispatcher extends BaseJsonApiClient {
 
     /**
      * Creates a dispatcher.
@@ -26,20 +26,22 @@ public interface BackendDispatcher extends ApiClient {
     }
 
     /**
-     * Creates a staged builder for a backend JSON API request whose response is only an HTTP status code.
+     * Creates a staged builder for a backend JSON API request.
      *
-     * @return a backend request builder at the initial stage
+     * @return a backend request builder at the response type stage
      */
-    UrlStageRequestBuilder<DispatchStage<Integer>> requestBuilder();
+    ResponseTypeStageRequestBuilder requestBuilder();
 
-    /**
-     * Creates a staged builder for a backend JSON API request whose response is an {@link HttpOptional} value.
-     *
-     * @param responseValueTypeRef a {@link TypeReference} for the backend response value
-     * @return a backend request builder at the initial stage
-     * @param <V> the type of the backend response value
-     */
-    <V> UrlStageRequestBuilder<DispatchStage<HttpOptional<V>>> requestBuilder(TypeReference<V> responseValueTypeRef);
+    /** Staged builder for a backend JSON API request that can set the type of the response. */
+    interface ResponseTypeStageRequestBuilder extends BaseResponseTypeStageRequestBuilder {
+
+        @Override
+        RouteStageRequestBuilder<DispatchStage<Integer>> statusCodeResponse();
+
+        @Override
+        <V> RouteStageRequestBuilder<DispatchStage<HttpOptional<V>>> jsonResponse(
+                TypeReference<V> responseValueTypeRef);
+    }
 
     /**
      * Post-build stage that can asynchronously send this backend request.

@@ -30,7 +30,8 @@ public final class UndertowArgsTest {
     @Test
     public void body() throws IOException {
         set(UndertowArgs.body(new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .put(server.rootUrl())
                 .body(1)
                 .build()
@@ -41,7 +42,8 @@ public final class UndertowArgsTest {
     @Test
     public void queryParam() throws IOException {
         set(UndertowArgs.queryParam("param", new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .get(server.url("/path?param=1"))
                 .build()
                 .execute();
@@ -51,7 +53,8 @@ public final class UndertowArgsTest {
     @Test
     public void badRequest_Body_DeserializeFailed() throws IOException {
         set(UndertowArgs.body(new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .put(server.rootUrl())
                 .body("a")
                 .build()
@@ -62,7 +65,8 @@ public final class UndertowArgsTest {
     @Test
     public void badRequest_QueryParam_Missing() throws IOException {
         set(UndertowArgs.queryParam("param", new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .get(server.rootUrl())
                 .build()
                 .execute();
@@ -72,7 +76,8 @@ public final class UndertowArgsTest {
     @Test
     public void badRequest_QueryParam_MultipleValues() throws IOException {
         set(UndertowArgs.queryParam("param", new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .get(server.url("/path?param=1&param=2"))
                 .build()
                 .execute();
@@ -82,7 +87,8 @@ public final class UndertowArgsTest {
     @Test
     public void badRequest_QueryParam_DeserializeFailed() throws IOException {
         set(UndertowArgs.queryParam("param", new TypeReference<>() {}));
-        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder(new TypeReference<Integer>() {})
+        HttpOptional<Integer> maybeArg = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<Integer>() {})
                 .get(server.url("/path?param=a"))
                 .build()
                 .execute();

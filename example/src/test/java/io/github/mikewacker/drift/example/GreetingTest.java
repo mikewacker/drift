@@ -29,7 +29,8 @@ public final class GreetingTest {
     public void helloWorld() throws IOException {
         salutationServer.enqueue(
                 new MockResponse().setHeader("Content-Type", "application/json").setBody("\"Hello\""));
-        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .post(greetingServer.url("/greeting"))
                 .body("world")
                 .build()
@@ -40,6 +41,7 @@ public final class GreetingTest {
     @Test
     public void healthCheck() throws IOException {
         int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .get(greetingServer.url("/health"))
                 .build()
                 .execute();

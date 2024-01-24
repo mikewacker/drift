@@ -58,11 +58,16 @@ public final class UndertowSenderTest {
     }
 
     private static int executeStatusCodeRequest(String path) throws IOException {
-        return JsonApiClient.requestBuilder().get(server.url(path)).build().execute();
+        return JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .get(server.url(path))
+                .build()
+                .execute();
     }
 
     private static HttpOptional<String> executeTextRequest(String path) throws IOException {
-        return JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        return JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(server.url(path))
                 .build()
                 .execute();

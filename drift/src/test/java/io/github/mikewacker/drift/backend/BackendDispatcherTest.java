@@ -55,13 +55,15 @@ public final class BackendDispatcherTest {
 
     private static int executeRequestWithStatusCodeResponse() throws IOException {
         return JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .get(frontendServer.url("/status-code"))
                 .build()
                 .execute();
     }
 
     private static HttpOptional<String> executeRequestWithJsonValueResponse() throws IOException {
-        return JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        return JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(frontendServer.url("/text"))
                 .build()
                 .execute();
