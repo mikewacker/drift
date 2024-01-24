@@ -20,6 +20,7 @@ final class ProxyService implements ProxyApi {
     public void proxyStatusCode(Sender.StatusCode sender, Dispatcher dispatcher) {
         backendDispatcher
                 .requestBuilder()
+                .statusCodeResponse()
                 .get(TestServer.get("backend").rootUrl())
                 .build()
                 .dispatch(sender, dispatcher, this::onStatusCodeReceived);
@@ -28,7 +29,8 @@ final class ProxyService implements ProxyApi {
     @Override
     public void proxyText(Sender.Value<String> sender, Dispatcher dispatcher) {
         backendDispatcher
-                .requestBuilder(new TypeReference<String>() {})
+                .requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(TestServer.get("backend").rootUrl())
                 .build()
                 .dispatch(sender, dispatcher, this::onTextReceived);

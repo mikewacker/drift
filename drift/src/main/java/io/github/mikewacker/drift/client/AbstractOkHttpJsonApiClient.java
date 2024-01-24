@@ -11,42 +11,39 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * Abstract JSON {@link ApiClient} that is internally backed by {@code OkHttp}.
+ * Abstract implementation for a sub-interface of {@link BaseJsonApiClient} that is internally backed by {@code OkHttp}.
  * <p>
- * Implementations will...
+ * A concrete implementation will...
  * <ul>
- *     <li>define {@code <S>}, the interface for the post-build stage that can send the request
- *     <li>provide {@code requestBuilder()} and <code>requestBuilder({@link TypeReference}&lt;V&gt;)</code> methods.
+ *     <li>provide an implementation for the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.
+ *     <li>provide an implementation for {@code S}, the interface for the post-build stage that can send this request.
  * </ul>
  */
-public abstract class AbstractOkHttpJsonApiClient implements ApiClient {
-
-    // If a generic method has multiple type parameters (e.g., S and V),
-    // an @Override of that method cannot bind some type parameters (e.g., bind S but not V).
-    // This limitation of Java influences the design of this class.
-    // (Also, S may depend on V in the implementation. Thus, S also cannot be defined in the class declaration.)
+public abstract class AbstractOkHttpJsonApiClient implements BaseJsonApiClient {
 
     /**
-     * Creates a staged builder for a JSON API request whose response is only an HTTP status code.
+     * Sets the type of the response to only an HTTP status code.
+     * Called by the implementation for the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.
      *
      * @param sendStageFactory a factory for the post-build stage that can send this request
-     * @return a request builder at the initial stage
+     * @return a request builder at the route stage
      * @param <S> the interface for the post-build stage that can send this request
      */
-    protected final <S> UrlStageRequestBuilder<S> requestBuilder(SendStageFactory<S, Integer> sendStageFactory) {
+    protected static <S> RouteStageRequestBuilder<S> statusCodeResponse(SendStageFactory<S, Integer> sendStageFactory) {
         return new RequestBuilder<>(sendStageFactory, Response::code);
     }
 
     /**
-     * Creates a staged builder for a JSON API request whose response is an {@link HttpOptional} value.
+     * Sets the type of the response to an {@link HttpOptional} value that is deserialized from JSON.
+     * Called by the implementation for the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.
      *
      * @param sendStageFactory a factory for the post-build stage that can send this request
      * @param responseValueTypeRef a {@link TypeReference} for the response value
-     * @return a request builder at the initial stage
+     * @return a request builder at the route stage
      * @param <S> the interface for the post-build stage that can send this request
      * @param <V> the type of the response value
      */
-    protected final <S, V> UrlStageRequestBuilder<S> requestBuilder(
+    protected static <S, V> RouteStageRequestBuilder<S> jsonResponse(
             SendStageFactory<S, HttpOptional<V>> sendStageFactory, TypeReference<V> responseValueTypeRef) {
         ResponseAdapter<HttpOptional<V>> responseAdapter = new JsonValueResponseAdapter<>(responseValueTypeRef);
         return new RequestBuilder<>(sendStageFactory, responseAdapter);
@@ -93,65 +90,62 @@ public abstract class AbstractOkHttpJsonApiClient implements ApiClient {
         R convert(Response rawResponse) throws IOException;
     }
 
-    /** Internal builder for a JSON API request. */
-    private static final class RequestBuilder<S, V>
-            implements UrlStageRequestBuilder<S>,
+    /** Internal request builder, not including the response type stage. */
+    private static final class RequestBuilder<S, R>
+            implements RouteStageRequestBuilder<S>,
                     HeadersOrFinalStageRequestBuilder<S>,
                     HeadersOrBodyOrFinalStageRequestBuilder<S> {
 
         private static final MediaType JSON_CONTENT_TYPE = MediaType.get("application/json");
         private static final RequestBody EMPTY_BODY = RequestBody.create(new byte[0]);
 
-        private final SendStageFactory<S, V> sendStageFactory;
-        private final ResponseAdapter<V> responseAdapter;
+        private final SendStageFactory<S, R> sendStageFactory;
+        private final ResponseAdapter<R> responseAdapter;
 
         private final Request.Builder rawRequestBuilder = new Request.Builder();
-        private RequestBuilderStage stage = RequestBuilderStage.URL;
 
         // Request.Builder sets the HTTP method and the body together, while this builder sets them in separate methods.
         private String method = null;
         private RequestBody body = EMPTY_BODY;
 
         @Override
-        public RequestBuilder<S, V> get(String url) {
+        public RequestBuilder<S, R> get(String url) {
             return method("GET", url);
         }
 
         @Override
-        public RequestBuilder<S, V> put(String url) {
+        public RequestBuilder<S, R> put(String url) {
             return method("PUT", url);
         }
 
         @Override
-        public RequestBuilder<S, V> post(String url) {
+        public RequestBuilder<S, R> post(String url) {
             return method("POST", url);
         }
 
         @Override
-        public RequestBuilder<S, V> delete(String url) {
+        public RequestBuilder<S, R> delete(String url) {
             return method("DELETE", url);
         }
 
         @Override
-        public RequestBuilder<S, V> patch(String url) {
+        public RequestBuilder<S, R> patch(String url) {
             return method("PATCH", url);
         }
 
         @Override
-        public RequestBuilder<S, V> head(String url) {
+        public RequestBuilder<S, R> head(String url) {
             return method("HEAD", url);
         }
 
         @Override
-        public RequestBuilder<S, V> header(String name, String value) {
-            checkAndAdvanceStage(RequestBuilderStage.HEADERS, RequestBuilderStage.HEADERS);
+        public RequestBuilder<S, R> header(String name, String value) {
             rawRequestBuilder.addHeader(name, value);
             return this;
         }
 
         @Override
-        public RequestBuilder<S, V> body(Object requestValue) {
-            checkAndAdvanceStage(RequestBuilderStage.BODY, RequestBuilderStage.FINAL);
+        public RequestBuilder<S, R> body(Object requestValue) {
             byte[] rawRequestValue = JsonValues.serialize(requestValue);
             body = RequestBody.create(rawRequestValue, JSON_CONTENT_TYPE);
             return this;
@@ -159,7 +153,6 @@ public abstract class AbstractOkHttpJsonApiClient implements ApiClient {
 
         @Override
         public S build() {
-            checkAndAdvanceStage(RequestBuilderStage.FINAL, RequestBuilderStage.SEND);
             switch (method) {
                 case "GET" -> rawRequestBuilder.get();
                 case "HEAD" -> rawRequestBuilder.head();
@@ -170,35 +163,16 @@ public abstract class AbstractOkHttpJsonApiClient implements ApiClient {
         }
 
         /** Sets the HTTP method and the URL. */
-        private RequestBuilder<S, V> method(String method, String url) {
-            checkAndAdvanceStage(RequestBuilderStage.URL, RequestBuilderStage.HEADERS);
+        private RequestBuilder<S, R> method(String method, String url) {
             this.method = method;
             rawRequestBuilder.url(url);
             return this;
         }
 
-        /** Checks the current builder stage, and also advances the builder stage. */
-        private void checkAndAdvanceStage(RequestBuilderStage expected, RequestBuilderStage next) {
-            if (stage.compareTo(expected) > 0) {
-                throw new IllegalStateException("stage already completed");
-            }
-
-            stage = next;
-        }
-
-        private RequestBuilder(SendStageFactory<S, V> sendStageFactory, ResponseAdapter<V> responseAdapter) {
+        private RequestBuilder(SendStageFactory<S, R> sendStageFactory, ResponseAdapter<R> responseAdapter) {
             this.sendStageFactory = sendStageFactory;
             this.responseAdapter = responseAdapter;
         }
-    }
-
-    /** Stages for the {@code RequestBuilder}. */
-    private enum RequestBuilderStage {
-        URL,
-        HEADERS,
-        BODY,
-        FINAL,
-        SEND,
     }
 
     /** Reads the response body and deserializes it from JSON, or returns an error status code. */

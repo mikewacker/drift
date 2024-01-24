@@ -20,6 +20,7 @@ public final class UndertowJsonApiTest {
     @Test
     public void exchange_StatusCode() throws IOException {
         int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .get(server.url("/health"))
                 .build()
                 .execute();
@@ -28,7 +29,8 @@ public final class UndertowJsonApiTest {
 
     @Test
     public void exchange_JsonValue() throws IOException {
-        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .post(server.url("/greeting"))
                 .body("world")
                 .build()

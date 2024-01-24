@@ -25,8 +25,11 @@ public final class JsonApiClientTest {
     @Test
     public void statusCodeResponse() throws IOException {
         mockServer.enqueue(new MockResponse());
-        int statusCode =
-                JsonApiClient.requestBuilder().get(mockServer.rootUrl()).build().execute();
+        int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .get(mockServer.rootUrl())
+                .build()
+                .execute();
         assertThat(statusCode).isEqualTo(200);
     }
 
@@ -34,7 +37,8 @@ public final class JsonApiClientTest {
     public void jsonValueResponse_Ok() throws IOException {
         mockServer.enqueue(
                 new MockResponse().setHeader("Content-Type", "application/json").setBody("\"test\""));
-        HttpOptional<String> maybeText = JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        HttpOptional<String> maybeText = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(mockServer.rootUrl())
                 .build()
                 .execute();
@@ -44,7 +48,8 @@ public final class JsonApiClientTest {
     @Test
     public void jsonValueResponse_ErrorCode() throws IOException {
         mockServer.enqueue(new MockResponse().setResponseCode(500));
-        HttpOptional<String> maybeText = JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        HttpOptional<String> maybeText = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(mockServer.rootUrl())
                 .build()
                 .execute();
@@ -53,65 +58,59 @@ public final class JsonApiClientTest {
 
     @Test
     public void get() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .get(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "GET");
+        method("GET", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .get(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
     @Test
     public void put() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .put(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "PUT");
+        method("PUT", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .put(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
     @Test
     public void post() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .post(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "POST");
+        method("POST", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .post(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
     @Test
     public void delete() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .delete(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "DELETE");
+        method("DELETE", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .delete(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
     @Test
     public void patch() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .patch(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "PATCH");
+        method("PATCH", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .patch(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
     @Test
     public void head() throws Exception {
-        method(
-                () -> JsonApiClient.requestBuilder()
-                        .head(mockServer.rootUrl())
-                        .build()
-                        .execute(),
-                "HEAD");
+        method("HEAD", () -> JsonApiClient.requestBuilder()
+                .statusCodeResponse()
+                .head(mockServer.rootUrl())
+                .build()
+                .execute());
     }
 
-    private void method(Callable<Integer> requestSender, String expectedMethod) throws Exception {
+    private void method(String expectedMethod, Callable<Integer> requestSender) throws Exception {
         mockServer.enqueue(new MockResponse());
         int statusCode = requestSender.call();
         assertThat(statusCode).isEqualTo(200);
@@ -124,6 +123,7 @@ public final class JsonApiClientTest {
     public void headers() throws Exception {
         mockServer.enqueue(new MockResponse());
         int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .get(mockServer.rootUrl())
                 .header("User-Agent", "agent")
                 .header("Test-Header", "value")
@@ -140,6 +140,7 @@ public final class JsonApiClientTest {
     public void body() throws Exception {
         mockServer.enqueue(new MockResponse());
         int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .post(mockServer.rootUrl())
                 .body("test")
                 .build()
@@ -178,33 +179,13 @@ public final class JsonApiClientTest {
     }
 
     private void error_JsonValueResponse(String expectedMessagePrefix) {
-        assertThatThrownBy(() -> JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        assertThatThrownBy(() -> JsonApiClient.requestBuilder()
+                        .jsonResponse(new TypeReference<String>() {})
                         .get(mockServer.rootUrl())
                         .build()
                         .execute())
                 .isInstanceOf(JsonSerializationException.class)
                 .hasMessageStartingWith(expectedMessagePrefix);
-    }
-
-    @Test
-    public void error_StageCompleted() {
-        ApiClient.UrlStageRequestBuilder<JsonApiClient.SendStage<Integer>> requestBuilder =
-                JsonApiClient.requestBuilder();
-        requestBuilder.get(mockServer.rootUrl());
-        assertThatThrownBy(() -> requestBuilder.get(mockServer.rootUrl()))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("stage already completed");
-    }
-
-    @Test
-    public void error_SendRequestTwice() throws IOException {
-        mockServer.enqueue(new MockResponse());
-        JsonApiClient.SendStage<Integer> requestSender =
-                JsonApiClient.requestBuilder().get(mockServer.rootUrl()).build();
-        requestSender.execute();
-        assertThatThrownBy(requestSender::execute)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("request was already sent");
     }
 
     private static RecordedRequest takeRecordedRequest() throws InterruptedException {

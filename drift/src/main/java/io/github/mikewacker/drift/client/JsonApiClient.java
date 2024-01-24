@@ -6,27 +6,25 @@ import io.github.mikewacker.drift.json.JsonSerializationException;
 import java.io.IOException;
 
 /** Shared HTTP client that sends requests to a JSON API. */
-public interface JsonApiClient extends ApiClient {
+public interface JsonApiClient extends BaseJsonApiClient {
 
     /**
-     * Creates a staged builder for a JSON API request whose response is only an HTTP status code.
+     * Creates a staged builder for a JSON API request.
      *
-     * @return a request builder at the initial stage
+     * @return a request builder at the response type stage
      */
-    static UrlStageRequestBuilder<SendStage<Integer>> requestBuilder() {
+    static ResponseTypeStageRequestBuilder requestBuilder() {
         return JsonApiClientImpl.requestBuilder();
     }
 
-    /**
-     * Creates a staged builder for a JSON API request whose response is an {@link HttpOptional} value.
-     *
-     * @param responseValueTypeRef a {@link TypeReference} for the response value
-     * @return a request builder at the initial stage
-     * @param <V> the type of the response value
-     */
-    static <V> UrlStageRequestBuilder<SendStage<HttpOptional<V>>> requestBuilder(
-            TypeReference<V> responseValueTypeRef) {
-        return JsonApiClientImpl.requestBuilder(responseValueTypeRef);
+    /** Staged builder for a JSON API request that can set the type of the response. */
+    interface ResponseTypeStageRequestBuilder extends BaseResponseTypeStageRequestBuilder {
+
+        @Override
+        RouteStageRequestBuilder<SendStage<Integer>> statusCodeResponse();
+
+        @Override
+        <V> RouteStageRequestBuilder<SendStage<HttpOptional<V>>> jsonResponse(TypeReference<V> responseValueTypeRef);
     }
 
     /**

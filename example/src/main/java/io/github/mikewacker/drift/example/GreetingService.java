@@ -21,7 +21,8 @@ public final class GreetingService implements GreetingApi {
     @Override
     public void sendGreeting(Sender.Value<String> sender, String recipient, Dispatcher dispatcher) {
         backendDispatcher
-                .requestBuilder(new TypeReference<String>() {})
+                .requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(salutationUrlProvider.get())
                 .build()
                 .dispatch(sender, recipient, dispatcher, this::onSalutationReceived);

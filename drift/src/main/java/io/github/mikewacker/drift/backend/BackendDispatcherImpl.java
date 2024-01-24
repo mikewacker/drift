@@ -7,7 +7,6 @@ import io.github.mikewacker.drift.api.HttpOptional;
 import io.github.mikewacker.drift.api.Sender;
 import io.github.mikewacker.drift.client.AbstractOkHttpJsonApiClient;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -25,14 +24,23 @@ final class BackendDispatcherImpl extends AbstractOkHttpJsonApiClient implements
     }
 
     @Override
-    public UrlStageRequestBuilder<DispatchStage<Integer>> requestBuilder() {
-        return requestBuilder(DispatchStageImpl::new);
+    public ResponseTypeStageRequestBuilder requestBuilder() {
+        return new ResponseTypeStageRequestBuilderImpl();
     }
 
-    @Override
-    public <V> UrlStageRequestBuilder<DispatchStage<HttpOptional<V>>> requestBuilder(
-            TypeReference<V> responseValueTypeRef) {
-        return requestBuilder(DispatchStageImpl::new, responseValueTypeRef);
+    /** Internal {@code ResponseTypeStageRequestBuilder} implementation. */
+    private final class ResponseTypeStageRequestBuilderImpl implements ResponseTypeStageRequestBuilder {
+
+        @Override
+        public RouteStageRequestBuilder<DispatchStage<Integer>> statusCodeResponse() {
+            return AbstractOkHttpJsonApiClient.statusCodeResponse(DispatchStageImpl::new);
+        }
+
+        @Override
+        public <V> RouteStageRequestBuilder<DispatchStage<HttpOptional<V>>> jsonResponse(
+                TypeReference<V> responseValueTypeRef) {
+            return AbstractOkHttpJsonApiClient.jsonResponse(DispatchStageImpl::new, responseValueTypeRef);
+        }
     }
 
     private BackendDispatcherImpl() {}
@@ -43,17 +51,10 @@ final class BackendDispatcherImpl extends AbstractOkHttpJsonApiClient implements
         private final Request rawRequest;
         private final ResponseAdapter<R> responseAdapter;
 
-        private final AtomicBoolean wasSent = new AtomicBoolean(false);
-
         @Override
         public <S extends Sender> void dispatch(S sender, Dispatcher dispatcher, ApiHandler.OneArg<S, R> callback) {
-            if (wasSent.getAndSet(true)) {
-                throw new IllegalStateException("request was already sent");
-            }
-
             OkHttpClient client = clientProvider.get(dispatcher);
-            AdaptedCallback<S, R> adaptedCallback =
-                    new AdaptedCallback<>(sender, responseAdapter, dispatcher, callback);
+            Callback adaptedCallback = new AdaptedCallback<>(sender, responseAdapter, dispatcher, callback);
             client.newCall(rawRequest).enqueue(adaptedCallback);
             dispatcher.dispatched();
         }
@@ -67,7 +68,7 @@ final class BackendDispatcherImpl extends AbstractOkHttpJsonApiClient implements
     /**
      * Adapts an {@code ApiHandler.OneArg} to a {@code Callback}.
      * <p>
-     * A lambda function can adapt {@code ApiHandler}'s with more arguments to a {@code ApiHandler.OneArg}.
+     * A lambda function can adapt {@code ApiHandler}'s with more arguments to an {@code ApiHandler.OneArg}.
      */
     private record AdaptedCallback<S extends Sender, R>(
             S sender, ResponseAdapter<R> responseAdapter, Dispatcher dispatcher, ApiHandler.OneArg<S, R> callback)
