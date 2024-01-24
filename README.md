@@ -71,7 +71,8 @@ public final class GreetingService implements GreetingApi {
     @Override
     public void sendGreeting(Sender.Value<String> sender, String recipient, Dispatcher dispatcher) {
         backendDispatcher
-                .requestBuilder(new TypeReference<String>() {})
+                .requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .get(salutationUrlProvider.get())
                 .build()
                 .dispatch(sender, recipient, dispatcher, this::onSalutationReceived);
@@ -120,16 +121,18 @@ public final class GreetingEndpoint {
     /** Creates an endpoint. */
     public static HttpHandler create(Supplier<String> salutationUrlProvider) {
         GreetingApi greetingApi = GreetingService.create(salutationUrlProvider);
-
-        HttpHandler greetingHandler = UndertowJsonApiHandler.builder(new TypeReference<String>() {})
-                .addArg(UndertowArgs.body(new TypeReference<String>() {}))
-                .build(greetingApi::sendGreeting);
-        HttpHandler healthHandler = UndertowJsonApiHandler.builder().build(greetingApi::healthCheck);
-
-        return UndertowRouter.builder()
-                .addRoute(HttpMethod.POST, "/greeting", greetingHandler)
-                .addRoute(HttpMethod.GET, "/health", healthHandler)
-                .build();
+        return UndertowJsonApiRouter.of(
+                UndertowJsonApiHandler.builder()
+                        .route(HttpMethod.POST, "/greeting")
+                        .jsonResponse(new TypeReference<String>() {})
+                        .arg(UndertowArgs.body(new TypeReference<String>() {}))
+                        .apiHandler(greetingApi::sendGreeting)
+                        .build(),
+                UndertowJsonApiHandler.builder()
+                        .route(HttpMethod.GET, "/health")
+                        .statusCodeResponse()
+                        .apiHandler(greetingApi::healthCheck)
+                        .build());
     }
 
     // static class
@@ -156,7 +159,8 @@ public final class GreetingTest {
     public void helloWorld() throws IOException {
         salutationServer.enqueue(
                 new MockResponse().setHeader("Content-Type", "application/json").setBody("\"Hello\""));
-        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder(new TypeReference<String>() {})
+        HttpOptional<String> maybeGreeting = JsonApiClient.requestBuilder()
+                .jsonResponse(new TypeReference<String>() {})
                 .post(greetingServer.url("/greeting"))
                 .body("world")
                 .build()
@@ -167,6 +171,7 @@ public final class GreetingTest {
     @Test
     public void healthCheck() throws IOException {
         int statusCode = JsonApiClient.requestBuilder()
+                .statusCodeResponse()
                 .get(greetingServer.url("/health"))
                 .build()
                 .execute();
