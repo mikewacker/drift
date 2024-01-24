@@ -3,7 +3,7 @@ package io.github.mikewacker.drift.api;
 /**
  * Response sender that can send an HTTP status code for an error.
  * <p>
- * Subtypes will specify how to send to a successful response.
+ * A sub-interface will define a method to send a successful response.
  */
 public interface Sender {
 

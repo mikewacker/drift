@@ -15,8 +15,8 @@ import okhttp3.Response;
  * <p>
  * A concrete implementation will...
  * <ul>
- *     <li>provide an implementation for the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.
- *     <li>provide an implementation for {@code S}, the interface for the post-build stage that can send this request.
+ *     <li>implement the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.
+ *     <li>implement {@code S}, the interface for the post-build stage that can send the request.
  * </ul>
  */
 public abstract class AbstractOkHttpJsonApiClient implements BaseJsonApiClient {

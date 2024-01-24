@@ -191,7 +191,7 @@ final class GenericJsonApiHandler<E, S extends Sender, A1, A2, A3, A4, A5, A6, A
 
     /** Abstract {@code RouteStageBuilder} and {@code ResponseStageBuilder} implementation. */
     public abstract static class PreArgStageBuilder<E, EH extends JsonApiHandler<E>>
-            implements RouteStageBuilder<E, EH>, ResponseStageBuilder<E, EH> {
+            implements RouteStageBuilder<E, EH>, ResponseTypeStageBuilder<E, EH> {
 
         private HttpMethod method = null;
         private List<String> relativePathSegments = null;
