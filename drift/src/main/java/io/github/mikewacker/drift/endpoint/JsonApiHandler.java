@@ -51,9 +51,9 @@ public interface JsonApiHandler<E> {
          *
          * @param method the HTTP method of the route
          * @param relativePath the relative URL path of the route
-         * @return a builder at the response stage
+         * @return this builder at the response type stage
          */
-        ResponseStageBuilder<E, EH> route(HttpMethod method, String relativePath);
+        ResponseTypeStageBuilder<E, EH> route(HttpMethod method, String relativePath);
     }
 
     /**
@@ -62,12 +62,12 @@ public interface JsonApiHandler<E> {
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
      */
-    interface ResponseStageBuilder<E, EH extends JsonApiHandler<E>> {
+    interface ResponseTypeStageBuilder<E, EH extends JsonApiHandler<E>> {
 
         /**
          * Sets the type of the response to only an HTTP status code.
          *
-         * @return a builder at the zero arguments stage
+         * @return this builder at the zero arguments stage
          */
         ZeroArgStageBuilder<E, EH, Sender.StatusCode> statusCodeResponse();
 
@@ -75,7 +75,7 @@ public interface JsonApiHandler<E> {
          * Sets the type of the response to an {@link HttpOptional} value that is deserialized from JSON.
          *
          * @param responseValueTypeRef a {@link TypeReference} for the response value
-         * @return a builder at the zero arguments stage
+         * @return this builder at the zero arguments stage
          * @param <V> the type of the response value
          */
         <V> ZeroArgStageBuilder<E, EH, Sender.Value<V>> jsonResponse(TypeReference<V> responseValueTypeRef);
@@ -294,7 +294,7 @@ public interface JsonApiHandler<E> {
          * Sets the API handler.
          *
          * @param apiHandler the API handler
-         * @return a builder at the final stage
+         * @return this builder at the final stage
          */
         FinalStageBuilder<E, EH> apiHandler(AH apiHandler);
     }
@@ -302,7 +302,7 @@ public interface JsonApiHandler<E> {
     /**
      * Builder for an HTTP handler that can set the API handler or add an argument.
      * <p>
-     * Subtypes will override the return type, which is the next stage of the builder.
+     * A sub-interface will override the return type to this builder at the stage with an additional argument.
      *
      * @param <E> the type of the underlying HTTP exchange
      * @param <EH> the type of the HTTP handler for the underlying server
@@ -315,7 +315,7 @@ public interface JsonApiHandler<E> {
          * Adds an argument to the API handler. The argument will be extracted from the underlying HTTP request.
          *
          * @param argExtractor the extractor that gets the argument from the underlying HTTP request
-         * @return a builder at the stage with an additional argument
+         * @return this builder at the stage with an additional argument
          * @param <A> the type of the argument for the API handler
          */
         <A> Object arg(ArgExtractor<E, A> argExtractor);
@@ -324,7 +324,7 @@ public interface JsonApiHandler<E> {
          * Adds an argument to the API handler. The argument will be extracted from the underlying HTTP request.
          *
          * @param argExtractor the extractor that gets the argument from the underlying HTTP request
-         * @return a builder at the stage with an additional argument
+         * @return this builder at the stage with an additional argument
          * @param <A> the type of the argument for the API handler
          */
         <A> Object arg(ArgExtractor.Async<E, A> argExtractor);
