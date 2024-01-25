@@ -13,6 +13,9 @@ import okhttp3.Response;
 /**
  * Abstract implementation for a sub-interface of {@link BaseJsonApiClient} that is internally backed by {@code OkHttp}.
  * <p>
+ * This class is intended for internal use. Nothing stops external use, but no promises are made with respect to
+ * breaking API changes, and {@code OkHttp} is included as an implementation dependency&mdash;not an API dependency.
+ * <p>
  * A concrete implementation will...
  * <ul>
  *     <li>implement the sub-interface of {@link BaseResponseTypeStageRequestBuilder}.

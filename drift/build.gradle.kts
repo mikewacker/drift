@@ -9,9 +9,9 @@ dependencies {
     // main
     api(project(":drift-api"))
     api(libs.jackson.core)
-    api(libs.okhttp3.okhttp)
     api(libs.undertow.core)
 
+    implementation(libs.okhttp3.okhttp)
     implementation(libs.xnio.api)
 
     // test fixtures
