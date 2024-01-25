@@ -139,8 +139,8 @@ public final class GreetingEndpoint {
 ```
 
 `UndertowJsonApiHandler` is type-safe; the `jsonReponse()`/`statusCodeReponse()` call and the `arg()` calls
-will determine which type of `ApiHandler` is expected in the `apiHandler()` call.
-E.g., the `apiHandler()` call for `GET /greeting` expects an `ApiHandler.OneArg<Sender.Value<String>, String>` argument.
+will determine which type of `ApiHandler` is expected in the `apiHandler()` call. E.g., the `apiHandler()` call
+for `POST /greeting` expects an `ApiHandler.OneArg<Sender.Value<String>, String>` argument.
 
 ### What About Tests?
 
