@@ -13,6 +13,13 @@ tasks.javadoc {
     (options as StandardJavadocDocletOptions).addBooleanOption("Werror", true)
 }
 
+// Don't publish test fixtures.
+pluginManager.withPlugin("java-test-fixtures") {
+    val javaComponent = components["java"] as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesApiElements"]) { skip() }
+    javaComponent.withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) { skip() }
+}
+
 group = "io.github.mikewacker.drift"
 version = "0.3.0-SNAPSHOT"
 
