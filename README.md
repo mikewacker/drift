@@ -105,9 +105,7 @@ public final class GreetingService implements GreetingApi {
 }
 ```
 
-Behind the scenes, `BackendDispatcher` deserializes the HTTP response body from JSON;
-the `TypeReference<>` in `requestBuilder()` lets it know the type of the object that it is deserializing.
-
+The `TypeReference<>` argument for `jsonResponse()` is used to deserialize the response body from JSON.
 (For more information on JSON serialization and deserialization, see [`JsonValues`][json-values].)
 
 ### Step 3: Create an Endpoint
@@ -140,8 +138,9 @@ public final class GreetingEndpoint {
 }
 ```
 
-`UndertowJsonApiHandler` is type-safe; a compiler error will occur if the types for the `addArg()` calls
-do not align with the signature of the `ApiHandler` used in `build()`.
+`UndertowJsonApiHandler` is type-safe; the `jsonReponse()`/`statusCodeReponse()` call and the `arg()` calls
+will determine which type of `ApiHandler` is expected in the `apiHandler()` call.
+E.g., the `apiHandler()` call for `GET /greeting` expects an `ApiHandler.OneArg<Sender.Value<String>, String>` argument.
 
 ### What About Tests?
 
@@ -190,7 +189,7 @@ public final class GreetingTest {
 (`MockServer` is backed by [OkHttp's `MockWebServer`][mock-server].)
 
 Similar to `BackendDispatcher`, `JsonApiClient` serializes the argument for `body(Object)` to JSON,
-and it also deserializes the HTTP response body from JSON.
+and it also deserializes the response body from JSON.
 
 ---
 
@@ -204,8 +203,7 @@ https://github.com/mikewacker/age-verification
 ## Release Notes
 
 - The API is incubating in 0.x versions of Drift.
-- Drift is based on a real-world project; the other side of that coin is that said project heavily dictates
-  which features are (and are not) included in the 0.1 release.
+- The main feature still missing in the 0.2 release is the ability to get an argument from the URL path.
 
 [undertow]: https://undertow.io/
 [example]: /example
