@@ -1,4 +1,11 @@
+ 
 # Drift
+
+**Note: This project has been archived.**
+
+If you're looking for a good tech stack for prototyping (which also works for a production service), see this [architecture doc](https://github.com/mikewacker/age-verification/blob/main/docs/ARCHITECTURE.md).
+
+---
 
 "I just want to prototype an HTTP server for a JSON API that can also make backend requests."
 
