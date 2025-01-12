@@ -1,4 +1,11 @@
+ 
 # Drift
+
+**Note: This project has been archived.**
+
+If you're looking for a good tech stack for prototyping (which also works for a production service), see this [architecture doc](https://github.com/mikewacker/age-verification/blob/main/docs/ARCHITECTURE.md).
+
+---
 
 "I just want to prototype an HTTP server for a JSON API that can also make backend requests."
 
@@ -139,8 +146,8 @@ public final class GreetingEndpoint {
 ```
 
 `UndertowJsonApiHandler` is type-safe; the `jsonReponse()`/`statusCodeReponse()` call and the `arg()` calls
-will determine which type of `ApiHandler` is expected in the `apiHandler()` call.
-E.g., the `apiHandler()` call for `GET /greeting` expects an `ApiHandler.OneArg<Sender.Value<String>, String>` argument.
+will determine which type of `ApiHandler` is expected in the `apiHandler()` call. E.g., the `apiHandler()` call
+for `POST /greeting` expects an `ApiHandler.OneArg<Sender.Value<String>, String>` argument.
 
 ### What About Tests?
 
